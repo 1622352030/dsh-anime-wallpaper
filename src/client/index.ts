@@ -1,11 +1,11 @@
 /**
- * maid-atelier-ex client entry: a wallpaper backdrop with a theme-aware
+ * anime-wallpaper client entry: a wallpaper backdrop with a theme-aware
  * black/white overlay on the sidebar and conversation panes, plus a floating
  * background picker (built-in wallpapers + user-imported images).
  *
  * - Backdrop: a `body` background-image chosen from the embedded wallpapers or
  *   a user-imported image, overridable through
- *   `localStorage["dsh-skin-maid-atelier-ex.background"]` (built-in key or
+ *   `localStorage["dsh-skin-anime-wallpaper.background"]` (built-in key or
  *   `custom:<id>`).
  * - Overlay: the sidebar always carries a translucent white (light) / black
  *   (dark) veil; the conversation pane carries the same veil only while a
@@ -16,12 +16,12 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { BACKGROUNDS, DEFAULT_BACKGROUND } from './backgrounds.generated.ts'
 import { mountBackgroundPicker } from './background-picker.ts'
-import './maid-atelier-ex.module.css'
+import './anime-wallpaper.module.css'
 
-const STORAGE_KEY = 'dsh-skin-maid-atelier-ex.background'
-const CUSTOM_KEY = 'dsh-skin-maid-atelier-ex.custom'
-const NAMES_KEY = 'dsh-skin-maid-atelier-ex.names'
-const HIDDEN_KEY = 'dsh-skin-maid-atelier-ex.hidden'
+const STORAGE_KEY = 'dsh-skin-anime-wallpaper.background'
+const CUSTOM_KEY = 'dsh-skin-anime-wallpaper.custom'
+const NAMES_KEY = 'dsh-skin-anime-wallpaper.names'
+const HIDDEN_KEY = 'dsh-skin-anime-wallpaper.hidden'
 
 const BACKGROUND_NAMES: Record<string, string> = {
   'rabbit-umbrella': '兔子打伞',
@@ -47,7 +47,7 @@ type StoredCustom = Record<string, { name: string; uri: string }>
 
 export function apply(ctx: Context): void {
   const body = document.body
-  body.dataset.dshMaidAtelierEx = ''
+  body.dataset.dshAnimeWallpaper = ''
 
   const readCustom = (): StoredCustom => {
     try {
@@ -99,7 +99,7 @@ export function apply(ctx: Context): void {
   window.addEventListener('storage', onStorage)
 
   ctx.effect(() => () => {
-    delete body.dataset.dshMaidAtelierEx
+    delete body.dataset.dshAnimeWallpaper
     for (const property of BACKDROP_PROPERTIES) {
       body.style.removeProperty(property)
     }

@@ -1,6 +1,6 @@
-# maid-atelier-ex · 深海女仆工坊·EX
+# anime-wallpaper · DSH 动漫壁纸
 
-DeepSeek Harness Web GUI 的动漫壁纸皮肤：可切换的全屏壁纸背景，加上随亮/暗主题自动切换为白/黑的蒙版。纯展示层客户端插件——`apply()` 设置 `data-dsh-maid-atelier-ex` 作用域、挂载壁纸背景，并为侧栏与对话区叠加半透明蒙版。effect 销毁器还原全部 CSS 写入；不注入服务、不发出 Cordis 事件、不触达模型请求。
+DeepSeek Harness Web GUI 的动漫壁纸皮肤：可切换的全屏壁纸背景，加上随亮/暗主题自动切换为白/黑的蒙版。纯展示层客户端插件——`apply()` 设置 `data-dsh-anime-wallpaper` 作用域、挂载壁纸背景，并为侧栏与对话区叠加半透明蒙版。effect 销毁器还原全部 CSS 写入；不注入服务、不发出 Cordis 事件、不触达模型请求。
 
 ## 特性
 
@@ -9,7 +9,7 @@ DeepSeek Harness Web GUI 的动漫壁纸皮肤：可切换的全屏壁纸背景�
 - 侧栏 / 对话区 / 轨迹页 / 消息气泡 / 代码块等表面统一蒙版（亮=白、暗=黑）
 - 新会话（着陆页）对话区无蒙版，壁纸完整呈现；内容沉到底部、不遮挡壁纸主体
 - 弹窗（设置面板、菜单、Modal）保持不透明
-- 与皮肤中心/dsh-skin 的互斥切换兼容，`wiring.id` 为 `ui-skin-maid-atelier-ex`
+- 与皮肤中心/dsh-skin 的互斥切换兼容，`wiring.id` 为 `ui-skin-anime-wallpaper`
 
 ## 开启皮肤（安装）
 
@@ -63,7 +63,7 @@ pnpm dsh web
 **方式一：彻底卸载**
 
 ```sh
-dsh plugin --profile web remove @dsh-external/dsh-client-ui-skin-maid-atelier-ex
+dsh plugin --profile web remove @dsh-external/dsh-client-ui-skin-anime-wallpaper
 ```
 
 卸载后重启 web，界面恢复默认。
@@ -73,7 +73,7 @@ dsh plugin --profile web remove @dsh-external/dsh-client-ui-skin-maid-atelier-ex
 在 `~/.dsh/cordis.patch.yml`（机器级配置层）写入：
 
 ```yaml
-- id: ui-skin-maid-atelier-ex
+- id: ui-skin-anime-wallpaper
   disabled: true
 ```
 

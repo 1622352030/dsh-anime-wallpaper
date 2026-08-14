@@ -77,7 +77,7 @@ function writeJson(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value))
   } catch (error) {
-    console.error(`[maid-atelier-ex] storing ${key} failed:`, error)
+    console.error(`[anime-wallpaper] storing ${key} failed:`, error)
   }
 }
 
@@ -108,7 +108,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     try {
       localStorage.setItem(host.storageKey, pick)
     } catch (error) {
-      console.error('[maid-atelier-ex] persisting pick failed:', error)
+      console.error('[anime-wallpaper] persisting pick failed:', error)
     }
   }
 
@@ -304,7 +304,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
       host.onPick(uri)
       renderList()
     } catch (error) {
-      console.error('[maid-atelier-ex] importing image failed:', error)
+      console.error('[anime-wallpaper] importing image failed:', error)
     }
   }
 

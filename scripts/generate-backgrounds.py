@@ -49,7 +49,7 @@ def main() -> None:
         ' *   python scripts/generate-backgrounds.py',
         ' *',
         ' * Each key is also the localStorage switch handle: set',
-        ' * `localStorage["dsh-skin-maid-atelier-ex.background"] = "<key>"`.',
+        ' * `localStorage["dsh-skin-anime-wallpaper.background"] = "<key>"`.',
         ' */',
     ]
     entries = []
