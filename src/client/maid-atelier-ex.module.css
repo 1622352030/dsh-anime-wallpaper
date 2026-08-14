@@ -21,7 +21,6 @@ body[data-dsh-maid-atelier-ex] {
   --dsw-specific-sidebar-fill: transparent;
   /* Raised surfaces (trajectory table, tool cards, settings sections) → 60% veil. */
   --dsw-alias-bg-layer-1: rgba(255, 255, 255, 0.6);
-  --dsw-alias-bg-layer-2: rgba(255, 255, 255, 0.6);
   /* Composer card + selector/chip fills → 60% veil. */
   --dsw-specific-input-major: rgba(255, 255, 255, 0.6);
   --dsw-specific-selector: rgba(255, 255, 255, 0.6);
@@ -46,7 +45,6 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-alias-bg-base: transparent;
   --dsw-specific-sidebar-fill: transparent;
   --dsw-alias-bg-layer-1: rgba(0, 0, 0, 0.6);
-  --dsw-alias-bg-layer-2: rgba(0, 0, 0, 0.6);
   --dsw-specific-input-major: rgba(0, 0, 0, 0.6);
   --dsw-specific-selector: rgba(0, 0, 0, 0.6);
   --dsw-alias-bg-overlay: rgba(0, 0, 0, 0.6);
@@ -147,11 +145,13 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] button[cl
 body[data-dsh-maid-atelier-ex] [data-conversation-composer-overlay] {
   background: rgba(255, 255, 255, 0.6);
   --dsw-alias-bg-layer-1: transparent;
+  --dsw-alias-bg-layer-2: transparent;
   --dsw-alias-bg-layer-3: transparent;
 }
 
 body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-conversation-composer-overlay] {
   background: rgba(0, 0, 0, 0.6);
   --dsw-alias-bg-layer-1: transparent;
+  --dsw-alias-bg-layer-2: transparent;
   --dsw-alias-bg-layer-3: transparent;
 }
