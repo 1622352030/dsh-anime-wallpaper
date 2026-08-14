@@ -1,0 +1,130 @@
+/* maid-atelier-ex skin styles.
+ *
+ * The wallpaper lives on `body` (set by the client entry). The design-system
+ * surfaces are retinted through the theme variables themselves:
+ *   - `--dsw-alias-bg-base: transparent` clears the frame/#root/conversation
+ *     base so the body wallpaper shows through the whole viewport;
+ *   - `--dsw-specific-sidebar-fill: transparent` clears the sidebar's INNER
+ *     root (the same variable is painted twice — outer column + inner root —
+ *     and a doubled 50% veil reads as 75%), while the outer column gets the
+ *     single 50% veil directly below.
+ * The conversation pane keeps the same single veil only while a conversation
+ * is active (`[data-phase='active']`), so the landing page stays clear. */
+
+/* ------------------------------------------------------------------ */
+/* Base: theme variables                                               */
+/* ------------------------------------------------------------------ */
+
+body[data-dsh-maid-atelier-ex] {
+  background-color: #e7ecf6;
+  --dsw-alias-bg-base: transparent;
+  --dsw-specific-sidebar-fill: transparent;
+  /* Raised surfaces (trajectory table, tool cards, settings sections) → 60% veil. */
+  --dsw-alias-bg-layer-1: rgba(255, 255, 255, 0.6);
+  --dsw-alias-bg-layer-2: rgba(255, 255, 255, 0.6);
+  /* Composer card + selector/chip fills → 60% veil. */
+  --dsw-specific-input-major: rgba(255, 255, 255, 0.6);
+  --dsw-specific-selector: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex] [id='root'] {
+  background: transparent;
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
+  background-color: #0a1126;
+  --dsw-alias-bg-base: transparent;
+  --dsw-specific-sidebar-fill: transparent;
+  --dsw-alias-bg-layer-1: rgba(0, 0, 0, 0.6);
+  --dsw-alias-bg-layer-2: rgba(0, 0, 0, 0.6);
+  --dsw-specific-input-major: rgba(0, 0, 0, 0.6);
+  --dsw-specific-selector: rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar: one 50% veil on the outer column only                      */
+/* ------------------------------------------------------------------ */
+
+body[data-dsh-maid-atelier-ex] :is([data-pane='sidebar'], [class*='sidebarCol']) {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] :is([data-pane='sidebar'], [class*='sidebarCol']) {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* ------------------------------------------------------------------ */
+/* Conversation: one 50% veil only while active                        */
+/* ------------------------------------------------------------------ */
+
+body[data-dsh-maid-atelier-ex] :is([data-pane='conversation'], [class*='centerCol']) {
+  background: transparent;
+}
+
+body[data-dsh-maid-atelier-ex]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']) {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero landing: rounded veils behind the headline / chips             */
+/* ------------------------------------------------------------------ */
+
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] [class*='headlineText'] {
+  padding: 2px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] [class*='fishHitbox'] {
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] [class*='previewBadge'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] button[class*='workspace'],
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] button[class*='seat'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] [class*='headlineText'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] [class*='fishHitbox'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] [class*='previewBadge'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] button[class*='workspace'],
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] button[class*='seat'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Trajectory view: one veil on the root, nested layer-1 cleared       */
+/* ------------------------------------------------------------------ */
+/* The trajectory view nests layer-1 surfaces (root → toolbar → timeline
+ * → split → cell/panel). A 60% veil repeated over that many layers reads
+ * as near-black, so the root paints the single veil directly while the
+ * layer-1 variable is cleared for its descendants (inheritance). */
+
+body[data-dsh-maid-atelier-ex] [data-conversation-composer-overlay] {
+  background: rgba(255, 255, 255, 0.6);
+  --dsw-alias-bg-layer-1: transparent;
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-conversation-composer-overlay] {
+  background: rgba(0, 0, 0, 0.6);
+  --dsw-alias-bg-layer-1: transparent;
+}

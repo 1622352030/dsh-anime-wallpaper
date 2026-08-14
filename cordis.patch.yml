@@ -1,0 +1,5 @@
+# maid-atelier-ex skin bundle patch: inserts its public dsh.client entry into
+# the web plugin roster. Install with `dsh plugin --profile <name> add <path>`.
+- insert:
+    - id: ui-skin-maid-atelier-ex
+      name: '@dsh-external/dsh-client-ui-skin-maid-atelier-ex'

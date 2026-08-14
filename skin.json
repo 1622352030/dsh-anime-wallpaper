@@ -1,0 +1,27 @@
+{
+  "id": "maid-atelier-ex",
+  "name": "深海女仆工坊·EX",
+  "nameEn": "Abyssal Maid Atelier EX",
+  "author": "Small-tailqwq",
+  "tagline": "可切换动漫壁纸背景 + 主题自适应黑白蒙版",
+  "description": "在深海女仆工坊皮肤骨架上的扩展版：使用可切换的动漫壁纸作为全屏背景，在侧栏与对话区叠加一层随亮/暗主题自动切换为白/黑的弱蒙版，保证文字可读；新会话（着陆）页面的对话区不显示蒙版，让壁纸完整呈现。",
+  "tags": [
+    "anime",
+    "wallpaper",
+    "whale",
+    "navy",
+    "glass"
+  ],
+  "accent": "#c5a468",
+  "bodyAttr": "data-dsh-maid-atelier-ex",
+  "package": "@dsh-external/dsh-client-ui-skin-maid-atelier-ex",
+  "wiring": {
+    "id": "ui-skin-maid-atelier-ex",
+    "bundleWired": false
+  },
+  "preview": {
+    "light": "preview/light.webp",
+    "dark": "preview/dark.webp"
+  },
+  "order": 6
+}

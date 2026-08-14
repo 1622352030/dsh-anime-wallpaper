@@ -1,0 +1,12 @@
+# dependencies
+node_modules/
+
+# build output (regenerate with `pnpm build`)
+lib/
+
+# generated preview images (regenerate from images/)
+preview/
+
+# misc
+*.log
+.DS_Store
