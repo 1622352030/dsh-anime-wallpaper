@@ -27,6 +27,8 @@ body[data-dsh-maid-atelier-ex] {
   --dsw-specific-selector: rgba(255, 255, 255, 0.6);
   /* User-question card (in-conversation, not a popover) → 60% veil. */
   --dsw-alias-bg-overlay: rgba(255, 255, 255, 0.6);
+  /* User message bubble → 60% veil. */
+  --dsw-specific-bubble: rgba(255, 255, 255, 0.6);
 }
 
 body[data-dsh-maid-atelier-ex] [id='root'] {
@@ -42,6 +44,7 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-specific-input-major: rgba(0, 0, 0, 0.6);
   --dsw-specific-selector: rgba(0, 0, 0, 0.6);
   --dsw-alias-bg-overlay: rgba(0, 0, 0, 0.6);
+  --dsw-specific-bubble: rgba(0, 0, 0, 0.6);
 }
 
 /* ------------------------------------------------------------------ */
