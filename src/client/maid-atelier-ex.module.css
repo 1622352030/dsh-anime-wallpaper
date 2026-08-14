@@ -200,6 +200,12 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-conversation-composer-o
   box-shadow: var(--dsw-shadow-lv3);
 }
 
+/* The explicit `display: flex` above would override the UA's `[hidden] →
+ * display: none`, keeping the menu always visible. Re-assert it. */
+[data-skin-bg-menu][hidden] {
+  display: none;
+}
+
 [data-skin-bg-title] {
   padding: 10px 12px;
   border-bottom: 1px solid var(--dsw-alias-border-l1);
