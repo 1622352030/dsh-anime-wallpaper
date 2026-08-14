@@ -13,17 +13,38 @@ DeepSeek Harness Web GUI 的动漫壁纸皮肤：可切换的全屏壁纸背景�
 
 ## 开启皮肤（安装）
 
+### 前提：`dsh` 命令可用（二选一）
+
+- **无源码（普通用户，推荐）**：全局安装一次，之后任何目录都能用 `dsh`：
+
+  ```sh
+  npm install -g @deepseek-ai/dsh
+  ```
+
+- **源码 checkout**：没有全局装 dsh 时，进入 harness 源码目录，用 `pnpm dsh` 代替下面的 `dsh`。
+
+### 安装皮肤
+
+用**绝对路径**（无需进入特定目录，在哪敲都行）：
+
 ```sh
-git clone https://github.com/Small-tailqwq/dsh-deep-whale
-cd <harness>
-dsh plugin --profile web add ../dsh-deep-whale-ex
+git clone https://github.com/1622352030/dsh-deep-whale-ex.git
+dsh plugin --profile web add <皮肤绝对路径>
+```
+
+Windows 示例：
+
+```sh
+dsh plugin --profile web add D:\github_fork\dsh-deep-whale-ex
 ```
 
 装完后**重启 web 进程**再刷新浏览器页面，皮肤即生效：
 
 ```sh
-cd <harness>
-dsh web        # 或 pnpm dsh web（源码 checkout 场景）
+dsh web              # 全局安装场景，任意目录
+# 或（源码 checkout 场景）：
+cd <harness 源码目录>
+pnpm dsh web
 ```
 
 > 开发期若改动皮肤代码并 `pnpm build`，dsh 的 client-plugin HMR 会自动热更新，通常无需重启、刷新即可看到。
@@ -42,7 +63,6 @@ dsh web        # 或 pnpm dsh web（源码 checkout 场景）
 **方式一：彻底卸载**
 
 ```sh
-cd <harness>
 dsh plugin --profile web remove @dsh-external/dsh-client-ui-skin-maid-atelier-ex
 ```
 
