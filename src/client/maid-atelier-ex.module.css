@@ -316,3 +316,15 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-conversation-composer-o
   background: var(--dsw-alias-interactive-bg-hover);
   color: var(--dsw-alias-label-primary);
 }
+
+/* ------------------------------------------------------------------ */
+/* Hero landing: dock the composer stack toward the bottom             */
+/* ------------------------------------------------------------------ */
+/* The hero stack is flex-centered vertically by default, which puts the
+ * headline + chips + input card over the middle of the wallpaper. Dock it
+ * low instead so the artwork's center stays visible. */
+
+body[data-dsh-maid-atelier-ex] [data-phase='hero'] [class*='scrollBody'] {
+  justify-content: flex-end;
+  padding-bottom: 48px;
+}
