@@ -20,6 +20,8 @@ import './maid-atelier-ex.module.css'
 
 const STORAGE_KEY = 'dsh-skin-maid-atelier-ex.background'
 const CUSTOM_KEY = 'dsh-skin-maid-atelier-ex.custom'
+const NAMES_KEY = 'dsh-skin-maid-atelier-ex.names'
+const HIDDEN_KEY = 'dsh-skin-maid-atelier-ex.hidden'
 
 const BACKGROUND_NAMES: Record<string, string> = {
   'rabbit-umbrella': '兔子打伞',
@@ -84,6 +86,8 @@ export function apply(ctx: Context): void {
     defaultKey: DEFAULT_BACKGROUND,
     storageKey: STORAGE_KEY,
     customKey: CUSTOM_KEY,
+    namesKey: NAMES_KEY,
+    hiddenKey: HIDDEN_KEY,
     onPick: syncBackdrop,
   })
 

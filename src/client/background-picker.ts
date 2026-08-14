@@ -1,10 +1,15 @@
 /**
  * Floating background picker (native DOM, no React): a fixed toggle button
  * that opens a dropdown listing the built-in wallpapers plus any
- * user-imported images, with an "import from file" entry. Picks persist to
- * localStorage; the host's `onPick` re-paints the backdrop. Imported images
- * are downscaled to 1920px wide webp before storage so several fit the
- * localStorage budget.
+ * user-imported images, with import / rename / remove actions. Picks persist
+ * to localStorage; the host's `onPick` re-paints the backdrop. Imported
+ * images are downscaled to 1920px wide webp before storage.
+ *
+ * localStorage layout (keys supplied by the host):
+ *   - storageKey   current pick: built-in key or `custom:<id>`
+ *   - customKey    imported images: `{ id: { name, uri } }`
+ *   - namesKey     built-in name overrides: `{ key: name }`
+ *   - hiddenKey    hidden built-in keys: `[key, ...]`
  */
 
 interface StoredCustom {
@@ -14,7 +19,7 @@ interface StoredCustom {
 export interface BackgroundPickerHost {
   /** Built-in wallpaper key → data URI. */
   builtin: Record<string, string>
-  /** Built-in wallpaper key → display name. */
+  /** Built-in wallpaper key → default display name. */
   names: Record<string, string>
   /** Fallback key when nothing is stored. */
   defaultKey: string
@@ -22,6 +27,10 @@ export interface BackgroundPickerHost {
   storageKey: string
   /** localStorage key holding the user-imported images. */
   customKey: string
+  /** localStorage key holding built-in name overrides. */
+  namesKey: string
+  /** localStorage key holding hidden built-in keys. */
+  hiddenKey: string
   /** Called with the resolved data URI after a pick. */
   onPick: (uri: string) => void
 }
@@ -55,31 +64,51 @@ function compressImage(file: File): Promise<string> {
   })
 }
 
+function readJson<T>(key: string, fallback: T): T {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) ?? '') as unknown
+    return parsed ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
+function writeJson(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (error) {
+    console.error(`[maid-atelier-ex] storing ${key} failed:`, error)
+  }
+}
+
 export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   const body = document.body
 
-  const readCustom = (): StoredCustom => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(host.customKey) ?? '{}') as unknown
-      return typeof parsed === 'object' && parsed !== null ? parsed as StoredCustom : {}
-    } catch {
-      return {}
-    }
-  }
+  const readCustom = (): StoredCustom => readJson<StoredCustom>(host.customKey, {})
+  const writeCustom = (value: StoredCustom): void => writeJson(host.customKey, value)
 
-  const writeCustom = (custom: StoredCustom): void => {
-    try {
-      localStorage.setItem(host.customKey, JSON.stringify(custom))
-    } catch (error) {
-      console.error('[maid-atelier-ex] storing imported image failed:', error)
-    }
+  const readNames = (): Record<string, string> => readJson<Record<string, string>>(host.namesKey, {})
+  const writeNames = (value: Record<string, string>): void => writeJson(host.namesKey, value)
+
+  const readHidden = (): string[] => {
+    const parsed = readJson<unknown>(host.hiddenKey, [])
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : []
   }
+  const writeHidden = (value: string[]): void => writeJson(host.hiddenKey, value)
 
   const currentPick = (): string => {
     try {
       return localStorage.getItem(host.storageKey) ?? host.defaultKey
     } catch {
       return host.defaultKey
+    }
+  }
+
+  const setPick = (pick: string): void => {
+    try {
+      localStorage.setItem(host.storageKey, pick)
+    } catch (error) {
+      console.error('[maid-atelier-ex] persisting pick failed:', error)
     }
   }
 
@@ -126,17 +155,86 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   root.append(toggle, menu, fileInput)
   body.append(root)
 
+  // ---- actions ----
+  const selectBuiltin = (key: string, uri: string): void => {
+    setPick(key)
+    host.onPick(uri)
+    renderList()
+  }
+
+  const selectCustom = (id: string, uri: string): void => {
+    setPick(`custom:${id}`)
+    host.onPick(uri)
+    renderList()
+  }
+
+  const renameBuiltin = (key: string): void => {
+    const current = readNames()[key] ?? host.names[key] ?? key
+    const next = window.prompt('重命名主题', current)
+    if (next === null || next.trim() === '') return
+    const names = readNames()
+    names[key] = next.trim()
+    writeNames(names)
+    renderList()
+  }
+
+  const renameCustom = (id: string): void => {
+    const custom = readCustom()
+    const entry = custom[id]
+    if (entry === undefined) return
+    const next = window.prompt('重命名主题', entry.name)
+    if (next === null || next.trim() === '') return
+    custom[id] = { ...entry, name: next.trim() }
+    writeCustom(custom)
+    renderList()
+  }
+
+  const removeBuiltin = (key: string): void => {
+    if (!window.confirm('从列表移除这个主题？')) return
+    const hidden = readHidden()
+    if (!hidden.includes(key)) hidden.push(key)
+    writeHidden(hidden)
+    if (currentPick() === key) {
+      setPick(host.defaultKey)
+      host.onPick(host.builtin[host.defaultKey] ?? '')
+    }
+    renderList()
+  }
+
+  const removeCustom = (id: string): void => {
+    if (!window.confirm('删除这个自定义主题？')) return
+    const custom = readCustom()
+    delete custom[id]
+    writeCustom(custom)
+    if (currentPick() === `custom:${id}`) {
+      setPick(host.defaultKey)
+      host.onPick(host.builtin[host.defaultKey] ?? '')
+    }
+    renderList()
+  }
+
   // ---- rendering ----
   const renderList = (): void => {
     list.textContent = ''
     const current = currentPick()
+    const hidden = readHidden()
+    const names = readNames()
 
-    const renderItem = (pick: string, label: string, uri: string): void => {
-      const item = document.createElement('button')
-      item.type = 'button'
-      item.setAttribute('data-skin-bg-item', '')
-      item.setAttribute('data-pick', pick)
-      if (pick === current) item.setAttribute('data-active', '')
+    const renderItem = (
+      pick: string,
+      label: string,
+      uri: string,
+      onSelect: () => void,
+      onRename: () => void,
+      onRemove: () => void,
+    ): void => {
+      const row = document.createElement('div')
+      row.setAttribute('data-skin-bg-item', '')
+      if (pick === current) row.setAttribute('data-active', '')
+
+      const pickBtn = document.createElement('button')
+      pickBtn.type = 'button'
+      pickBtn.setAttribute('data-skin-bg-pick', '')
 
       const thumb = document.createElement('img')
       thumb.src = uri
@@ -144,32 +242,54 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
       thumb.setAttribute('data-skin-bg-thumb', '')
 
       const name = document.createElement('span')
+      name.setAttribute('data-skin-bg-name', '')
       name.textContent = label
 
       const check = document.createElement('span')
       check.setAttribute('data-skin-bg-check', '')
       check.textContent = '✓'
 
-      item.append(thumb, name, check)
-      item.addEventListener('click', () => {
-        try {
-          localStorage.setItem(host.storageKey, pick)
-        } catch (error) {
-          console.error('[maid-atelier-ex] persisting pick failed:', error)
-        }
-        host.onPick(uri)
-        renderList()
-      })
-      list.append(item)
+      pickBtn.append(thumb, name, check)
+      pickBtn.addEventListener('click', onSelect)
+
+      const renameBtn = document.createElement('button')
+      renameBtn.type = 'button'
+      renameBtn.setAttribute('data-skin-bg-action', '')
+      renameBtn.setAttribute('aria-label', '重命名')
+      renameBtn.title = '重命名'
+      renameBtn.textContent = '✎'
+      renameBtn.addEventListener('click', onRename)
+
+      const removeBtn = document.createElement('button')
+      removeBtn.type = 'button'
+      removeBtn.setAttribute('data-skin-bg-action', '')
+      removeBtn.setAttribute('aria-label', '删除')
+      removeBtn.title = '删除'
+      removeBtn.textContent = '✕'
+      removeBtn.addEventListener('click', onRemove)
+
+      row.append(pickBtn, renameBtn, removeBtn)
+      list.append(row)
     }
 
     for (const [key, uri] of Object.entries(host.builtin)) {
-      renderItem(key, host.names[key] ?? key, uri)
+      if (hidden.includes(key)) continue
+      const label = names[key] ?? host.names[key] ?? key
+      renderItem(
+        key, label, uri,
+        () => { selectBuiltin(key, uri) },
+        () => { renameBuiltin(key) },
+        () => { removeBuiltin(key) },
+      )
     }
 
-    const custom = readCustom()
-    for (const [id, entry] of Object.entries(custom)) {
-      renderItem(`custom:${id}`, entry.name, entry.uri)
+    for (const [id, entry] of Object.entries(readCustom())) {
+      renderItem(
+        `custom:${id}`, entry.name, entry.uri,
+        () => { selectCustom(id, entry.uri) },
+        () => { renameCustom(id) },
+        () => { removeCustom(id) },
+      )
     }
   }
 
@@ -180,11 +300,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
       const custom = readCustom()
       custom[id] = { name: file.name, uri }
       writeCustom(custom)
-      try {
-        localStorage.setItem(host.storageKey, `custom:${id}`)
-      } catch (error) {
-        console.error('[maid-atelier-ex] persisting pick failed:', error)
-      }
+      setPick(`custom:${id}`)
       host.onPick(uri)
       renderList()
     } catch (error) {
