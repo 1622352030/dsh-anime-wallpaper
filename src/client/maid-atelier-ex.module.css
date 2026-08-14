@@ -25,6 +25,8 @@ body[data-dsh-maid-atelier-ex] {
   /* Composer card + selector/chip fills → 60% veil. */
   --dsw-specific-input-major: rgba(255, 255, 255, 0.6);
   --dsw-specific-selector: rgba(255, 255, 255, 0.6);
+  /* User-question card (in-conversation, not a popover) → 60% veil. */
+  --dsw-alias-bg-overlay: rgba(255, 255, 255, 0.6);
 }
 
 body[data-dsh-maid-atelier-ex] [id='root'] {
@@ -39,6 +41,7 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-alias-bg-layer-2: rgba(0, 0, 0, 0.6);
   --dsw-specific-input-major: rgba(0, 0, 0, 0.6);
   --dsw-specific-selector: rgba(0, 0, 0, 0.6);
+  --dsw-alias-bg-overlay: rgba(0, 0, 0, 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -51,6 +54,15 @@ body[data-dsh-maid-atelier-ex] :is([data-pane='sidebar'], [class*='sidebarCol'])
 
 body[data-dsh-maid-atelier-ex][data-ds-dark-theme] :is([data-pane='sidebar'], [class*='sidebarCol']) {
   background: rgba(0, 0, 0, 0.75);
+}
+
+/* New-session (hero) page: lighten the sidebar veil to 50%. */
+body[data-dsh-maid-atelier-ex]:has([data-phase='hero']) :is([data-pane='sidebar'], [class*='sidebarCol']) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme]:has([data-phase='hero']) :is([data-pane='sidebar'], [class*='sidebarCol']) {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* ------------------------------------------------------------------ */
@@ -122,9 +134,11 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-phase='hero'] button[cl
 body[data-dsh-maid-atelier-ex] [data-conversation-composer-overlay] {
   background: rgba(255, 255, 255, 0.6);
   --dsw-alias-bg-layer-1: transparent;
+  --dsw-alias-bg-layer-3: transparent;
 }
 
 body[data-dsh-maid-atelier-ex][data-ds-dark-theme] [data-conversation-composer-overlay] {
   background: rgba(0, 0, 0, 0.6);
   --dsw-alias-bg-layer-1: transparent;
+  --dsw-alias-bg-layer-3: transparent;
 }
