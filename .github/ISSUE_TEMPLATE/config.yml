@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用文档
+    url: https://github.com/1622352030/dsh-anime-wallpaper#readme
+    about: 先看 README，尤其是「常见问题」章节
+  - name: 贡献指南
+    url: https://github.com/1622352030/dsh-anime-wallpaper/blob/main/CONTRIBUTING.md
+    about: 想提交代码前请看这里
