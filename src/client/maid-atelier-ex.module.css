@@ -34,6 +34,8 @@ body[data-dsh-maid-atelier-ex] {
   --dsw-alias-markdown-code-block-banner: rgba(255, 255, 255, 0.6);
   /* Goal card / todo panel / queue dock → 60% veil. */
   --dsw-specific-tip: rgba(255, 255, 255, 0.6);
+  /* New-session button (elevated fill) → 80% veil. */
+  --dsw-alias-button-elevated-fill: rgba(255, 255, 255, 0.8);
 }
 
 body[data-dsh-maid-atelier-ex] [id='root'] {
@@ -53,6 +55,7 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-alias-markdown-code-block: rgba(0, 0, 0, 0.6);
   --dsw-alias-markdown-code-block-banner: rgba(0, 0, 0, 0.6);
   --dsw-specific-tip: rgba(0, 0, 0, 0.6);
+  --dsw-alias-button-elevated-fill: rgba(0, 0, 0, 0.8);
 }
 
 /* ------------------------------------------------------------------ */
@@ -74,6 +77,17 @@ body[data-dsh-maid-atelier-ex]:has([data-phase='hero']) :is([data-pane='sidebar'
 
 body[data-dsh-maid-atelier-ex][data-ds-dark-theme]:has([data-phase='hero']) :is([data-pane='sidebar'], [class*='sidebarCol']) {
   background: rgba(0, 0, 0, 0.5);
+}
+
+/* Hero: new-session button → 70%, composer card → 50%. */
+body[data-dsh-maid-atelier-ex]:has([data-phase='hero']) {
+  --dsw-alias-button-elevated-fill: rgba(255, 255, 255, 0.7);
+  --dsw-specific-input-major: rgba(255, 255, 255, 0.5);
+}
+
+body[data-dsh-maid-atelier-ex][data-ds-dark-theme]:has([data-phase='hero']) {
+  --dsw-alias-button-elevated-fill: rgba(0, 0, 0, 0.7);
+  --dsw-specific-input-major: rgba(0, 0, 0, 0.5);
 }
 
 /* ------------------------------------------------------------------ */
