@@ -33,6 +33,8 @@ body[data-dsh-maid-atelier-ex] {
   --dsw-alias-markdown-inline-code: rgba(255, 255, 255, 0.6);
   --dsw-alias-markdown-code-block: rgba(255, 255, 255, 0.6);
   --dsw-alias-markdown-code-block-banner: rgba(255, 255, 255, 0.6);
+  /* Goal card / todo panel / queue dock → 60% veil. */
+  --dsw-specific-tip: rgba(255, 255, 255, 0.6);
 }
 
 body[data-dsh-maid-atelier-ex] [id='root'] {
@@ -52,6 +54,7 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-alias-markdown-inline-code: rgba(0, 0, 0, 0.6);
   --dsw-alias-markdown-code-block: rgba(0, 0, 0, 0.6);
   --dsw-alias-markdown-code-block-banner: rgba(0, 0, 0, 0.6);
+  --dsw-specific-tip: rgba(0, 0, 0, 0.6);
 }
 
 /* ------------------------------------------------------------------ */
