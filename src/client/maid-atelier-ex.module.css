@@ -22,7 +22,7 @@ body[data-dsh-maid-atelier-ex] {
   /* Raised surfaces (trajectory table, tool cards, settings sections) → 60% veil. */
   --dsw-alias-bg-layer-1: rgba(255, 255, 255, 0.6);
   /* Composer card + selector/chip fills → 60% veil. */
-  --dsw-specific-input-major: rgba(255, 255, 255, 0.6);
+  --dsw-specific-input-major: rgba(255, 255, 255, 0.8);
   --dsw-specific-selector: rgba(255, 255, 255, 0.6);
   /* User-question card (in-conversation, not a popover) → 60% veil. */
   --dsw-alias-bg-overlay: rgba(255, 255, 255, 0.6);
@@ -45,7 +45,7 @@ body[data-dsh-maid-atelier-ex][data-ds-dark-theme] {
   --dsw-alias-bg-base: transparent;
   --dsw-specific-sidebar-fill: transparent;
   --dsw-alias-bg-layer-1: rgba(0, 0, 0, 0.6);
-  --dsw-specific-input-major: rgba(0, 0, 0, 0.6);
+  --dsw-specific-input-major: rgba(0, 0, 0, 0.8);
   --dsw-specific-selector: rgba(0, 0, 0, 0.6);
   --dsw-alias-bg-overlay: rgba(0, 0, 0, 0.6);
   --dsw-specific-bubble: rgba(0, 0, 0, 0.6);
