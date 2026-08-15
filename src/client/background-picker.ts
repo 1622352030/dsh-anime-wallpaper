@@ -5,6 +5,12 @@
  * and written through the host's `readState`/`writeState` callbacks, which
  * back onto the durable dsh settings section (cross-origin + restart safe).
  * Imported images are downscaled to 1920px wide webp before storage.
+ *
+ * Because the settings transport is asynchronous, the picker keeps a LOCAL
+ * state copy and updates it optimistically on every action, so the dropdown
+ * (current ✓, list contents) re-renders immediately instead of waiting for a
+ * settings round-trip. `refresh()` re-syncs the local copy from the host (used
+ * when a settings commit arrives from another window).
  */
 
 import type { CustomImage, SkinSettings } from '../skin-settings.ts'
@@ -22,6 +28,12 @@ export interface BackgroundPickerHost {
   writeState: (state: SkinSettings) => void
   /** Called with the resolved data URI after a pick. */
   onPick: (uri: string) => void
+}
+
+export interface BackgroundPickerHandle {
+  unmount: () => void
+  /** Re-read host state and re-render the dropdown (cross-window sync). */
+  refresh: () => void
 }
 
 /** Downscale an image file to 1920px-wide webp and return its data URI. */
@@ -53,24 +65,25 @@ function compressImage(file: File): Promise<string> {
   })
 }
 
-export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
+export function mountBackgroundPicker(host: BackgroundPickerHost): BackgroundPickerHandle {
   const body = document.body
 
-  const readCustom = (): Record<string, CustomImage> => host.readState().custom
-  const readNames = (): Record<string, string> => host.readState().names
-  const readHidden = (): string[] => {
-    const hidden = host.readState().hidden
-    return Array.isArray(hidden) ? hidden : []
-  }
+  // Local optimistic state; the settings transport is asynchronous, so every
+  // action mutates this copy synchronously and re-renders from it.
+  let state: SkinSettings = host.readState()
+
+  const readCustom = (): Record<string, CustomImage> => state.custom
+  const readNames = (): Record<string, string> => state.names
+  const readHidden = (): string[] => (Array.isArray(state.hidden) ? state.hidden : [])
 
   const currentPick = (): string => {
-    const background = host.readState().background
-    return background !== '' ? background : host.defaultKey
+    return state.background !== '' ? state.background : host.defaultKey
   }
 
-  /** Merge a partial patch into the durable state and persist it. */
+  /** Merge a partial patch into the local copy and persist it. */
   const commit = (patch: Partial<SkinSettings>): void => {
-    host.writeState({ ...host.readState(), ...patch })
+    state = { ...state, ...patch }
+    host.writeState(state)
   }
 
   const setPick = (pick: string): void => {
@@ -162,7 +175,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     if (!window.confirm('从列表移除这个主题？')) return
     const hidden = readHidden().filter(item => item !== key)
     hidden.push(key)
-    let background = host.readState().background
+    let background = state.background
     if (currentPick() === key) {
       background = firstAvailableBuiltin(hidden)
       host.onPick(host.builtin[background] ?? '')
@@ -175,7 +188,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     if (!window.confirm('删除这个自定义主题？')) return
     const custom = { ...readCustom() }
     delete custom[id]
-    let background = host.readState().background
+    let background = state.background
     if (currentPick() === `custom:${id}`) {
       background = host.defaultKey
       host.onPick(host.builtin[host.defaultKey] ?? '')
@@ -299,10 +312,18 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   }
   document.addEventListener('click', onDocClick)
 
+  const refresh = (): void => {
+    state = host.readState()
+    renderList()
+  }
+
   renderList()
 
-  return () => {
-    document.removeEventListener('click', onDocClick)
-    root.remove()
+  return {
+    refresh,
+    unmount: () => {
+      document.removeEventListener('click', onDocClick)
+      root.remove()
+    },
   }
 }

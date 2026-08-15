@@ -52,19 +52,16 @@ export function apply(ctx: Context): void {
   body.dataset.dshAnimeWallpaper = ''
 
   const readState = (): SkinSettings => {
-    try {
-      return scope.get()
-    } catch {
-      return EMPTY_SKIN_SETTINGS
-    }
+    return scope.getSnapshot().value ?? EMPTY_SKIN_SETTINGS
   }
 
   const writeState = (state: SkinSettings): void => {
-    try {
-      void scope.replace(state)
-    } catch (error) {
-      console.error('[anime-wallpaper] persisting settings failed:', error)
-    }
+    // Field-level writes; each queued write rides the latest revision and
+    // recovery re-reads on failure.
+    void scope.set('background', state.background)
+    void scope.set('custom', state.custom)
+    void scope.set('names', state.names)
+    void scope.set('hidden', state.hidden)
   }
 
   const resolveBackground = (): string => {
@@ -76,8 +73,12 @@ export function apply(ctx: Context): void {
     return BACKGROUNDS[pick] ?? BACKGROUNDS[DEFAULT_BACKGROUND]!
   }
 
+  const applyUri = (uri: string): void => {
+    body.style.setProperty('background-image', `url(${uri})`)
+  }
+
   const syncBackdrop = (): void => {
-    body.style.setProperty('background-image', `url(${resolveBackground()})`)
+    applyUri(resolveBackground())
   }
 
   body.style.setProperty('background-position', 'center center')
@@ -86,19 +87,21 @@ export function apply(ctx: Context): void {
   body.style.setProperty('background-repeat', 'no-repeat')
   syncBackdrop()
 
-  const unmountPicker = mountBackgroundPicker({
+  const picker = mountBackgroundPicker({
     builtin: BACKGROUNDS,
     names: BACKGROUND_NAMES,
     defaultKey: DEFAULT_BACKGROUND,
     readState,
     writeState,
-    onPick: syncBackdrop,
+    onPick: applyUri,
   })
 
   // Cross-window hot switch: a settings commit from another window (or the
-  // desktop shell) fires this watch, so the wallpaper follows live.
-  const unwatch = scope.watch(() => {
+  // desktop shell) fires this subscription, so the wallpaper follows live and
+  // the dropdown re-syncs.
+  const unsubscribe = scope.subscribe(() => {
     syncBackdrop()
+    picker.refresh()
   })
 
   ctx.effect(() => () => {
@@ -106,7 +109,7 @@ export function apply(ctx: Context): void {
     for (const property of BACKDROP_PROPERTIES) {
       body.style.removeProperty(property)
     }
-    unwatch()
-    unmountPicker()
+    unsubscribe()
+    picker.unmount()
   })
 }
