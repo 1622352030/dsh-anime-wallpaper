@@ -128,7 +128,7 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   toggle.setAttribute('data-skin-bg-toggle', '')
   toggle.setAttribute('aria-label', '切换背景')
   toggle.setAttribute('aria-expanded', 'false')
-  toggle.textContent = '🖼'
+  toggle.textContent = '👕'
 
   const menu = document.createElement('div')
   menu.setAttribute('data-skin-bg-menu', '')
