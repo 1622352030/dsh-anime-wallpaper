@@ -3,13 +3,10 @@
  * black/white overlay on the sidebar and conversation panes, plus a floating
  * background picker (built-in wallpapers + user-imported images).
  *
- * State (current wallpaper, imported images, renames, hidden list) is stored
- * in the dsh user-settings document via `ctx.settingsScope`, so it survives
- * restarts AND crosses origins (web browser vs desktop shell) — unlike
- * localStorage, which is origin-scoped and not shared across environments.
- *
  * - Backdrop: a `body` background-image chosen from the embedded wallpapers or
- *   a user-imported image.
+ *   a user-imported image, overridable through
+ *   `localStorage["dsh-skin-anime-wallpaper.background"]` (built-in key or
+ *   `custom:<id>`).
  * - Overlay: the sidebar always carries a translucent white (light) / black
  *   (dark) veil; the conversation pane carries the same veil only while a
  *   conversation is active (`[data-phase='active']`), so the landing page
@@ -17,14 +14,14 @@
  * - The Cordis effect disposer restores every write it made.
  */
 import type { Context } from '@deepseek-ai/cordis'
-import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import { BACKGROUNDS, DEFAULT_BACKGROUND } from './backgrounds.generated.ts'
 import { mountBackgroundPicker } from './background-picker.ts'
-import { EMPTY_SKIN_SETTINGS, SKIN_SETTINGS_NAMESPACE, type SkinSettings } from '../skin-settings.ts'
 import './anime-wallpaper.module.css'
 
-/** The client half needs the settings scope service to load/store state. */
-export const inject = ['settingsScope']
+const STORAGE_KEY = 'dsh-skin-anime-wallpaper.background'
+const CUSTOM_KEY = 'dsh-skin-anime-wallpaper.custom'
+const NAMES_KEY = 'dsh-skin-anime-wallpaper.names'
+const HIDDEN_KEY = 'dsh-skin-anime-wallpaper.hidden'
 
 const BACKGROUND_NAMES: Record<string, string> = {
   'rabbit-umbrella': '兔子打伞',
@@ -46,34 +43,31 @@ const BACKDROP_PROPERTIES = [
   'background-repeat',
 ] as const
 
+type StoredCustom = Record<string, { name: string; uri: string }>
+
 export function apply(ctx: Context): void {
-  const scope = ctx.settingsScope.bind<SkinSettings>({ namespace: SKIN_SETTINGS_NAMESPACE })
   const body = document.body
   body.dataset.dshAnimeWallpaper = ''
 
-  const readState = (): SkinSettings => {
+  const readCustom = (): StoredCustom => {
     try {
-      return scope.get()
+      const parsed = JSON.parse(localStorage.getItem(CUSTOM_KEY) ?? '{}') as unknown
+      return typeof parsed === 'object' && parsed !== null ? parsed as StoredCustom : {}
     } catch {
-      return EMPTY_SKIN_SETTINGS
-    }
-  }
-
-  const writeState = (state: SkinSettings): void => {
-    try {
-      void scope.replace(state)
-    } catch (error) {
-      console.error('[anime-wallpaper] persisting settings failed:', error)
+      return {}
     }
   }
 
   const resolveBackground = (): string => {
-    const state = readState()
-    const pick = state.background !== '' ? state.background : DEFAULT_BACKGROUND
-    if (pick.startsWith('custom:')) {
-      return state.custom[pick.slice('custom:'.length)]?.uri ?? BACKGROUNDS[DEFAULT_BACKGROUND]!
+    try {
+      const pick = localStorage.getItem(STORAGE_KEY) ?? DEFAULT_BACKGROUND
+      if (pick.startsWith('custom:')) {
+        return readCustom()[pick.slice('custom:'.length)]?.uri ?? BACKGROUNDS[DEFAULT_BACKGROUND]!
+      }
+      return BACKGROUNDS[pick] ?? BACKGROUNDS[DEFAULT_BACKGROUND]!
+    } catch {
+      return BACKGROUNDS[DEFAULT_BACKGROUND]!
     }
-    return BACKGROUNDS[pick] ?? BACKGROUNDS[DEFAULT_BACKGROUND]!
   }
 
   const syncBackdrop = (): void => {
@@ -90,23 +84,26 @@ export function apply(ctx: Context): void {
     builtin: BACKGROUNDS,
     names: BACKGROUND_NAMES,
     defaultKey: DEFAULT_BACKGROUND,
-    readState,
-    writeState,
+    storageKey: STORAGE_KEY,
+    customKey: CUSTOM_KEY,
+    namesKey: NAMES_KEY,
+    hiddenKey: HIDDEN_KEY,
     onPick: syncBackdrop,
   })
 
-  // Cross-window hot switch: a settings commit from another window (or the
-  // desktop shell) fires this watch, so the wallpaper follows live.
-  const unwatch = scope.watch(() => {
-    syncBackdrop()
-  })
+  // Cross-tab hot switch: another tab (or the console) that writes the same
+  // localStorage key triggers `storage` here, so the wallpaper changes live.
+  const onStorage = (event: StorageEvent): void => {
+    if (event.key === STORAGE_KEY || event.key === CUSTOM_KEY || event.key === null) syncBackdrop()
+  }
+  window.addEventListener('storage', onStorage)
 
   ctx.effect(() => () => {
     delete body.dataset.dshAnimeWallpaper
     for (const property of BACKDROP_PROPERTIES) {
       body.style.removeProperty(property)
     }
-    unwatch()
+    window.removeEventListener('storage', onStorage)
     unmountPicker()
   })
 }
