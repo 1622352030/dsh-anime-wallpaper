@@ -1,20 +1,13 @@
 /**
  * Floating background picker (native DOM, no React): a fixed toggle button
  * that opens a dropdown listing the built-in wallpapers plus any
- * user-imported images, with import / rename / remove actions. Picks persist
- * to localStorage; the host's `onPick` re-paints the backdrop. Imported
- * images are downscaled to 1920px wide webp before storage.
- *
- * localStorage layout (keys supplied by the host):
- *   - storageKey   current pick: built-in key or `custom:<id>`
- *   - customKey    imported images: `{ id: { name, uri } }`
- *   - namesKey     built-in name overrides: `{ key: name }`
- *   - hiddenKey    hidden built-in keys: `[key, ...]`
+ * user-imported images, with import / rename / remove actions. State is read
+ * and written through the host's `readState`/`writeState` callbacks, which
+ * back onto the durable dsh settings section (cross-origin + restart safe).
+ * Imported images are downscaled to 1920px wide webp before storage.
  */
 
-interface StoredCustom {
-  [id: string]: { name: string; uri: string }
-}
+import type { CustomImage, SkinSettings } from '../skin-settings.ts'
 
 export interface BackgroundPickerHost {
   /** Built-in wallpaper key → data URI. */
@@ -23,14 +16,10 @@ export interface BackgroundPickerHost {
   names: Record<string, string>
   /** Fallback key when nothing is stored. */
   defaultKey: string
-  /** localStorage key holding the current pick. */
-  storageKey: string
-  /** localStorage key holding the user-imported images. */
-  customKey: string
-  /** localStorage key holding built-in name overrides. */
-  namesKey: string
-  /** localStorage key holding hidden built-in keys. */
-  hiddenKey: string
+  /** Read the current durable skin state. */
+  readState: () => SkinSettings
+  /** Persist the full skin state. */
+  writeState: (state: SkinSettings) => void
   /** Called with the resolved data URI after a pick. */
   onPick: (uri: string) => void
 }
@@ -64,52 +53,28 @@ function compressImage(file: File): Promise<string> {
   })
 }
 
-function readJson<T>(key: string, fallback: T): T {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(key) ?? '') as unknown
-    return parsed ?? fallback
-  } catch {
-    return fallback
-  }
-}
-
-function writeJson(key: string, value: unknown): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch (error) {
-    console.error(`[anime-wallpaper] storing ${key} failed:`, error)
-  }
-}
-
 export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   const body = document.body
 
-  const readCustom = (): StoredCustom => readJson<StoredCustom>(host.customKey, {})
-  const writeCustom = (value: StoredCustom): void => writeJson(host.customKey, value)
-
-  const readNames = (): Record<string, string> => readJson<Record<string, string>>(host.namesKey, {})
-  const writeNames = (value: Record<string, string>): void => writeJson(host.namesKey, value)
-
+  const readCustom = (): Record<string, CustomImage> => host.readState().custom
+  const readNames = (): Record<string, string> => host.readState().names
   const readHidden = (): string[] => {
-    const parsed = readJson<unknown>(host.hiddenKey, [])
-    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : []
+    const hidden = host.readState().hidden
+    return Array.isArray(hidden) ? hidden : []
   }
-  const writeHidden = (value: string[]): void => writeJson(host.hiddenKey, value)
 
   const currentPick = (): string => {
-    try {
-      return localStorage.getItem(host.storageKey) ?? host.defaultKey
-    } catch {
-      return host.defaultKey
-    }
+    const background = host.readState().background
+    return background !== '' ? background : host.defaultKey
+  }
+
+  /** Merge a partial patch into the durable state and persist it. */
+  const commit = (patch: Partial<SkinSettings>): void => {
+    host.writeState({ ...host.readState(), ...patch })
   }
 
   const setPick = (pick: string): void => {
-    try {
-      localStorage.setItem(host.storageKey, pick)
-    } catch (error) {
-      console.error('[anime-wallpaper] persisting pick failed:', error)
-    }
+    commit({ background: pick })
   }
 
   const resolveUri = (pick: string): string => {
@@ -118,6 +83,11 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     }
     return host.builtin[pick] ?? host.builtin[host.defaultKey] ?? ''
   }
+
+  /** First built-in key that is not hidden (used when the current one is removed). */
+  const firstAvailableBuiltin = (hidden: string[]): string => (
+    Object.keys(host.builtin).find(key => !hidden.includes(key)) ?? host.defaultKey
+  )
 
   // ---- DOM ----
   const root = document.createElement('div')
@@ -172,9 +142,9 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     const current = readNames()[key] ?? host.names[key] ?? key
     const next = window.prompt('重命名主题', current)
     if (next === null || next.trim() === '') return
-    const names = readNames()
+    const names = { ...readNames() }
     names[key] = next.trim()
-    writeNames(names)
+    commit({ names })
     renderList()
   }
 
@@ -184,32 +154,33 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     if (entry === undefined) return
     const next = window.prompt('重命名主题', entry.name)
     if (next === null || next.trim() === '') return
-    custom[id] = { ...entry, name: next.trim() }
-    writeCustom(custom)
+    commit({ custom: { ...custom, [id]: { ...entry, name: next.trim() } } })
     renderList()
   }
 
   const removeBuiltin = (key: string): void => {
     if (!window.confirm('从列表移除这个主题？')) return
-    const hidden = readHidden()
-    if (!hidden.includes(key)) hidden.push(key)
-    writeHidden(hidden)
+    const hidden = readHidden().filter(item => item !== key)
+    hidden.push(key)
+    let background = host.readState().background
     if (currentPick() === key) {
-      setPick(host.defaultKey)
-      host.onPick(host.builtin[host.defaultKey] ?? '')
+      background = firstAvailableBuiltin(hidden)
+      host.onPick(host.builtin[background] ?? '')
     }
+    commit({ hidden, background })
     renderList()
   }
 
   const removeCustom = (id: string): void => {
     if (!window.confirm('删除这个自定义主题？')) return
-    const custom = readCustom()
+    const custom = { ...readCustom() }
     delete custom[id]
-    writeCustom(custom)
+    let background = host.readState().background
     if (currentPick() === `custom:${id}`) {
-      setPick(host.defaultKey)
+      background = host.defaultKey
       host.onPick(host.builtin[host.defaultKey] ?? '')
     }
+    commit({ custom, background })
     renderList()
   }
 
@@ -297,10 +268,9 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
     try {
       const uri = await compressImage(file)
       const id = `c${Date.now().toString(36)}`
-      const custom = readCustom()
+      const custom = { ...readCustom() }
       custom[id] = { name: file.name, uri }
-      writeCustom(custom)
-      setPick(`custom:${id}`)
+      commit({ custom, background: `custom:${id}` })
       host.onPick(uri)
       renderList()
     } catch (error) {
