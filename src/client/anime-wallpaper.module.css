@@ -91,26 +91,75 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='hero']) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Conversation: one 50% veil only while active                        */
+/* Conversation: one 60% veil only while active                        */
 /* ------------------------------------------------------------------ */
+/* DSH added a third phase: `settling` (a conversation that exists but has
+ * not come to rest yet). It is not the landing page, so it takes the veil
+ * with `active`; without it the pane fell through to the unconditional
+ * `transparent` above and the wallpaper showed through the transcript. */
 
 body[data-dsh-anime-wallpaper] :is([data-pane='conversation'], [class*='centerCol']) {
   background: transparent;
 }
 
-body[data-dsh-anime-wallpaper]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']) {
+body[data-dsh-anime-wallpaper]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']),
+body[data-dsh-anime-wallpaper]:has([data-phase='settling']) :is([data-pane='conversation'], [class*='centerCol']) {
   background: rgba(255, 255, 255, 0.6);
 }
 
-body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']) {
+body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']),
+body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) :is([data-pane='conversation'], [class*='centerCol']) {
   background: rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Right column: the track carries the veil                            */
+/* ------------------------------------------------------------------ */
+/* The frame's own `--dsw-alias-bg-base` is cleared to `transparent` at the
+ * top, and only the sidebar and conversation columns got a veil put back —
+ * the right track never had one. DSH's right panel is `position: absolute`
+ * inside this track and now paints itself with that SAME cleared token, so
+ * the whole column (panel header included) showed raw wallpaper. Give the
+ * track the veil and let the transparent panel read through it. */
+
+body[data-dsh-anime-wallpaper] :is([data-pane='rightbar'], [class*='rightbarCol']) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is([data-pane='rightbar'], [class*='rightbarCol']) {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* A fullscreen right panel leaves the track (`position: fixed; inset: 0`) and
+ * therefore has to carry its own veil. */
+body[data-dsh-anime-wallpaper] [data-sidebar-right-panel='fullscreen'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-sidebar-right-panel='fullscreen'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* better-sidebar mounts its workbench on a body-level fixed host instead of
+ * the track, so that subtree gets the veil through the token it paints with. */
+
+body[data-dsh-anime-wallpaper] [data-dsh-panel-host] {
+  --dsw-alias-bg-base: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-panel-host] {
+  --dsw-alias-bg-base: rgba(0, 0, 0, 0.6);
 }
 
 /* ------------------------------------------------------------------ */
 /* Hero landing: rounded veils behind the headline / chips             */
 /* ------------------------------------------------------------------ */
 
-body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='headlineText'] {
+/* DSH renamed this module class from `headlineText` to `headline`, so match
+ * both spellings. The `:has(fishHitbox)` anchor keeps the veil on the landing
+ * headline only — an unrelated `..._headline` (the context meter's) is never
+ * padded or filled. */
+body[data-dsh-anime-wallpaper] [data-phase='hero'] :is([class*='headlineText'], [class*='_headline']):has([class*='fishHitbox']) {
   padding: 2px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.6);
@@ -131,7 +180,7 @@ body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='seat'] {
   background: rgba(255, 255, 255, 0.6);
 }
 
-body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] [class*='headlineText'] {
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] :is([class*='headlineText'], [class*='_headline']):has([class*='fishHitbox']) {
   background: rgba(0, 0, 0, 0.6);
 }
 
