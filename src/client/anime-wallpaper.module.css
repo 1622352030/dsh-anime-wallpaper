@@ -395,3 +395,85 @@ body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='scrollBody'] {
   justify-content: flex-end;
   padding-bottom: 48px;
 }
+
+/* ------------------------------------------------------------------ */
+/* New-session PPT mode: the chip and its template panel               */
+/* ------------------------------------------------------------------ */
+/* The composer's chip row now carries a PPT mode chip
+ * (`button[data-desktop-ppt]`, `_…_modeChip`) beside the workspace and
+ * seat chips. It is painted with `background: 0 0`, and DSH's own
+ * conversation stylesheet then clears the whole cluster with
+ * `.…_heroModeCluster button { background: transparent !important }`, so a
+ * plain rule loses to that `!important` however specific it is. The chip
+ * therefore needs `!important` of its own, and only in its unselected
+ * state: DSH paints the selected chip as a solid `#262626` block with white
+ * text, which already reads on the artwork and must be left alone. */
+
+body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
+body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+/* Selecting that chip opens the template panel
+ * (`[data-office-ppt-template-panel]`, absolutely positioned under the
+ * composer card). The panel itself paints `background: 0 0` and every
+ * ancestor up to `[data-phase='hero']` is transparent — the hero page has
+ * no conversation veil to inherit — so the toolbar, the category tabs and
+ * the template names sat straight on the wallpaper. One veil on the panel
+ * root covers them all, since the toolbar and viewport are its children. */
+
+body[data-dsh-anime-wallpaper] [data-phase='hero'] [data-office-ppt-template-panel] {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] [data-office-ppt-template-panel] {
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* The panel's 我的模板 tab opens a personal-template dialog whose own rule
+ * is `background: var(--dsw-alias-bg-base, #fff)` — and this skin clears
+ * that token to `transparent`, so the fallback never applies and the modal
+ * floated on raw wallpaper. Popovers stay opaque here (same stance as the
+ * settings/modals), and `--dsw-alias-bg-layer-2` is the untouched token
+ * the other surfaces use for exactly this. The rule sits on
+ * `body[data-dsh-anime-wallpaper]` rather than matching the plugin's own
+ * specificity, because the plugin's stylesheet is injected after this one
+ * and would win a tie. */
+
+body[data-dsh-anime-wallpaper] dialog[class*='personal-dialog'] {
+  background: var(--dsw-alias-bg-layer-2);
+}
+
+/* ------------------------------------------------------------------ */
+/* Full-window plugin pages: the centre column loses its phase marker  */
+/* ------------------------------------------------------------------ */
+/* The plugin manager page reached from the sidebar's 插件 entry
+ * (`[data-plugin-panel]`) replaces the conversation pane. While it is
+ * open the document carries no `[data-phase]` marker at all, so none of
+ * the phase-scoped rules above match and the pane fell through to the
+ * unconditional `transparent`: group headings, cards and toggles sat
+ * directly on the wallpaper. The page root spans the whole centre column,
+ * so a single veil on it is enough. Scoped to that page rather than to
+ * "any pane without a phase" so other no-phase surfaces keep their own
+ * backgrounds. */
+
+body[data-dsh-anime-wallpaper] [data-plugin-panel] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-plugin-panel] {
+  background: rgba(0, 0, 0, 0.6);
+}
