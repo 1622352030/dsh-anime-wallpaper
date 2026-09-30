@@ -32,7 +32,10 @@ body[data-dsh-anime-wallpaper] {
   --dsw-alias-markdown-inline-code: rgba(255, 255, 255, 0.6);
   --dsw-alias-markdown-code-block: rgba(255, 255, 255, 0.6);
   --dsw-alias-markdown-code-block-banner: rgba(255, 255, 255, 0.6);
-  /* Goal card / todo panel / queue dock → 60% veil. */
+  /* Legacy token: DSH no longer reads `--dsw-specific-tip` — the goal bar,
+   * todo panel, queue dock and agent-team panel moved to
+   * `--dsw-specific-menu` (see the dock rule at the end of this file). Kept
+   * so an older DSH build still gets the veil. */
   --dsw-specific-tip: rgba(255, 255, 255, 0.6);
   /* New-session button (elevated fill) → 60% veil. */
   --dsw-alias-button-elevated-fill: rgba(255, 255, 255, 0.6);
@@ -476,4 +479,36 @@ body[data-dsh-anime-wallpaper] [data-plugin-panel] {
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-plugin-panel] {
   background: rgba(0, 0, 0, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Composer dock panels: goal bar / todo / queue / agent team          */
+/* ------------------------------------------------------------------ */
+/* DSH moved these four panels onto `--dsw-specific-menu`, which left the
+ * skin's `--dsw-specific-tip` override with no consumer at all: they fell
+ * back to the design-system menu fill (45% grey plus a 40px backdrop blur)
+ * instead of the translucent veil used everywhere else.
+ * The same token also paints genuine menus and popovers (model picker, jobs
+ * menu, schedule panel, hover cards), which must stay opaque — so the token
+ * is re-pointed on the four dock panels ONLY, never on `body`. */
+
+body[data-dsh-anime-wallpaper] :is(
+    [data-testid='todo-panel'],
+    [class*='lXshSW_root'],
+    [class*='nLMEza_bar'],
+    [class*='_7yHdaG_panel'],
+    [class*='VoX2oq_panel']
+  ) {
+  --dsw-specific-menu: rgba(255, 255, 255, 0.6);
+  --dsw-menu-backdrop-filter: none;
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is(
+    [data-testid='todo-panel'],
+    [class*='lXshSW_root'],
+    [class*='nLMEza_bar'],
+    [class*='_7yHdaG_panel'],
+    [class*='VoX2oq_panel']
+  ) {
+  --dsw-specific-menu: rgba(0, 0, 0, 0.6);
 }

@@ -1,7 +1,7 @@
 {
   "name": "@dsh-external/dsh-client-ui-skin-anime-wallpaper",
   "description": "Hot-pluggable anime-backdrop skin for the dsh web GUI: selectable wallpapers plus a theme-aware black/white overlay on the sidebar and conversation panes",
-  "version": "0.0.1",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "main": "lib/index.js",
@@ -19,6 +19,9 @@
       "inject": [],
       "platform": "web"
     }
+  },
+  "engines": {
+    "dsh": "^0.1.7-rc.2"
   },
   "scripts": {
     "build": "tsdown",
@@ -42,6 +45,7 @@
     "src",
     "LICENSE",
     "NOTICE",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ]
 }
