@@ -512,3 +512,28 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is(
   ) {
   --dsw-specific-menu: rgba(0, 0, 0, 0.6);
 }
+
+/* ------------------------------------------------------------------ */
+/* Skill centre page (sidebar 技能中心): same no-phase centre column   */
+/* ------------------------------------------------------------------ */
+/* The skill centre replaces the conversation pane exactly like the
+ * plugin page above, and it leaves the document with no `[data-phase]`
+ * marker at all — measured through CDP: `phase: null`, and the page
+ * root computed `background-color: rgba(0, 0, 0, 0)`. So none of the
+ * phase-scoped rules matched and the skill names, the descriptions and
+ * the group headings sat straight on the wallpaper.
+ * The plugin publishes a pinned semantic anchor for skins —
+ * `[data-dsh-skill-explorer-view]`, documented in its own
+ * contracts/semantic-attrs-v1.md and stamped next to
+ * `data-dsh-plugin="skill-explorer"` — so this rule keys on that stable
+ * attribute instead of a hashed class name a rebuild would change.
+ * The page root spans the whole centre column (measured 1320x1000), so
+ * one veil on it covers the tabs, the search row and every skill card. */
+
+body[data-dsh-anime-wallpaper] [data-dsh-skill-explorer-view] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-skill-explorer-view] {
+  background: rgba(0, 0, 0, 0.6);
+}
