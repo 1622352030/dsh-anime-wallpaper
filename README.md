@@ -323,12 +323,13 @@ pnpm build
 | 名称 | 是什么 | 在哪看 |
 | --- | --- | --- |
 | **DSH Desktop** | 桌面版安装包的版本 | 应用「设置 → 关于」，或安装包文件名 |
-| **Harness 内核** | 真正决定前端 DOM 的那一层，也是插件兼容性检查的对象 | `C:\Program Files\DSH Desktop\resources\app.asar.unpacked\node_modules\@deepseek-ai\dsh-client-ui-conversation\package.json` 里的 `version` |
+| **Harness 内核** | 真正决定前端 DOM 的那一层，也是插件兼容性检查的对象 | DSH Desktop `0.12.0` 起内核包收进 `C:\Program Files\DSH Desktop\resources\app.asar`（不再有 unpacked 副本）；启动日志里 `dsh 0.1.7` 的提示即此层版本 |
 
 ### 当前版本
 
 | 皮肤版本 | 兼容 DSH Desktop | 兼容 Harness 内核 |
 | --- | --- | --- |
+| `1.3.0` | `0.12.0` | `0.1.7` |
 | `1.2.0` | `0.10.0` | `0.1.7-rc.2` |
 | `1.1.1` | `0.10.0` | `0.1.7-rc.2` |
 
@@ -338,6 +339,7 @@ pnpm build
 
 | 皮肤版本 | 日期 | 兼容 DSH Desktop | 说明 |
 | --- | --- | --- | --- |
+| `1.3.0` | 2026-10-22 | `0.12.0` | 适配工作台页与会话页顶部标签栏蒙版 |
 | `1.2.0` | 2026-10-16 | `0.10.0` | 适配技能中心页面蒙版 |
 | `1.1.1` | 2026-09-30 | `0.10.0` | 修复任务／目标／队列／智能体面板蒙版失效 |
 | `1.1.0` | 2026-09-28 | `0.10.0` | 适配新会话 PPT 模式与插件管理页面 |

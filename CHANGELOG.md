@@ -7,7 +7,7 @@
 | 名称 | 是什么 | 在哪看 | 例 |
 | --- | --- | --- | --- |
 | **DSH Desktop** | 桌面版安装包的版本 | 应用「设置 → 关于」或安装包文件名 | `0.10.0` |
-| **Harness 内核** | 真正决定前端 DOM 的那一层，也是**插件兼容性检查的对象** | 安装目录 `resources/app.asar.unpacked/node_modules/@deepseek-ai/dsh-client-ui-conversation/package.json` 里的 `version` | `0.1.7-rc.2` |
+| **Harness 内核** | 真正决定前端 DOM 的那一层，也是**插件兼容性检查的对象** | DSH Desktop `0.12.0` 起内核包收进 `resources/app.asar`（不再有 unpacked 副本）；启动日志里 `dsh 0.1.7` 的提示即此层版本 | `0.1.7` |
 
 皮肤通过 `package.json` 的 `engines.dsh` 声明兼容的内核范围。内核会读取它（见 DSH 的 `inferPluginRuntimeCompatibility`）：**不满足时插件被判为不兼容并被跳过**，而不是加载后悄悄出问题。
 
@@ -15,6 +15,7 @@
 
 | 皮肤版本 | 日期 | 兼容 DSH Desktop | 兼容 Harness 内核 | 说明 |
 | --- | --- | --- | --- | --- |
+| `1.3.0` | 2026-10-22 | `0.12.0` | `0.1.7` | 适配工作台页蒙版与会话页顶部标签栏蒙版 |
 | `1.2.0` | 2026-10-16 | `0.10.0` | `0.1.7-rc.2` | 适配技能中心（Skill Center）页面蒙版 |
 | `1.1.1` | 2026-09-30 | `0.10.0` | `0.1.7-rc.2` | 修复任务面板／目标条／队列面板／智能体团队面板的蒙版失效 |
 | `1.1.0` | 2026-09-28 | `0.10.0` | `0.1.7-rc.2` | 适配新会话 PPT 模式（chip + 模板面板）与插件管理页面 |
@@ -34,6 +35,24 @@
 - 每次适配新 DSH 版本，需要同步四处：`package.json` 的 `engines.dsh`、`skin.json` 的 `compatibility`、本文件的表格、`README.md` 的兼容性章节。
 
 ---
+
+## 1.3.0 — 2026-10-22
+
+**适配**：DSH Desktop `0.12.0`（2026-10-16 升级；日志显示 Harness `dsh 0.1.7`）
+
+**新增适配**
+
+- **工作台页**（侧栏「工作台」，由 `dsh-desktop-workbenches` 提供）。这是 `0.12.0` 才有的新界面，不在会话外壳内，此前所有规则都覆盖不到。CDP 实测它同时存在两种毛病：页面根 `section.dshWb.dshWbMarket` 是 `rgba(0, 0, 0, 0)`（没蒙版），而顶部标题栏 `header.dshWbMarketHeader` 与卡片缩略图 `div.dshWbMedia` 却是实心 `rgb(53, 54, 56)`——这就是「有的没蒙版，有的不透明」的来源。修法是在页面根加一层与全站一致的蒙版，再把那两处实心灰改成透出根蒙版（缩略图保留极淡底色，未加载时仍是可辨的槽位）。
+- **会话页顶部标签栏**。会话页中心列顶部有一个 40px 的 `header.wSkVaW_header`，承载「对话／轨迹／上下文／编排」标签；它自身不画背景，而按 phase 生效的蒙版都从正文才开始，于是标签直接压在壁纸上。用 `:has([data-phase='active'|'settling'])` 做门控后加蒙版——hero 页渲染的是同一个 `header`（`wSkVaW_headerBlank`，空白），必须保持通透，所以不能无条件覆盖。
+
+**验收方式**（CDP 实机，非静态检查）
+
+- 工作台：`pageRoot` 由 `rgba(0, 0, 0, 0)` → `rgba(0, 0, 0, 0.6)`；`titleStrip` 由 `rgb(53, 54, 56)` → `rgba(0, 0, 0, 0)`；`thumb` 由 `rgb(53, 54, 56)` → `rgba(255, 255, 255, 0.06)`；并截图肉眼核对。
+- 会话页顶栏：构造六种情形逐一取值——`active`／`settling` 得 `rgba(0, 0, 0, 0.6)`，`hero`／`plain`／`hero_headerBlank` 保持 `rgba(0, 0, 0, 0)`，浅色主题 `active` 得 `rgba(255, 255, 255, 0.6)`。
+
+**文档更正**
+
+- 「Harness 内核」的查看路径已变：DSH Desktop `0.12.0` 把内核包收进了 `resources/app.asar`，`app.asar.unpacked/node_modules/@deepseek-ai/...` 这条旧路径不再存在；`engines.dsh`（`^0.1.7-rc.2`）经验证仍然匹配，皮肤正常加载。
 
 ## 1.2.0 — 2026-10-16
 

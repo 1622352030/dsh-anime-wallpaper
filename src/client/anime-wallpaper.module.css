@@ -537,3 +537,65 @@ body[data-dsh-anime-wallpaper] [data-dsh-skill-explorer-view] {
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-skill-explorer-view] {
   background: rgba(0, 0, 0, 0.6);
 }
+
+/* ------------------------------------------------------------------ */
+/* Workbench pages (sidebar 工作台), introduced by DSH Desktop 10-16   */
+/* ------------------------------------------------------------------ */
+/* The workbench surface is not part of the conversation shell, so none
+ * of the rules above reach it. Measured through CDP on the 工作台 page:
+ *
+ *   section.dshWb.dshWbMarket   page root     rgba(0, 0, 0, 0)
+ *   header.dshWbMarketHeader    title strip   rgb(53, 54, 56)   ← solid
+ *   div.dshWbMedia              card thumb    rgb(53, 54, 56)   ← solid
+ *   div.dshWbCardBody           card text     rgba(0, 0, 0, 0)
+ *
+ * So the page alternated between "no veil" (root, cards) and "solid grey"
+ * (title strip, thumbnails) — the mixed look that prompted this pass.
+ * Fix: one veil on the page root, then let the solid grey pieces fall
+ * back to it so the whole surface uses the same translucency as every
+ * other page in this skin. */
+
+body[data-dsh-anime-wallpaper] section[class*='dshWbMarket'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] section[class*='dshWbMarket'] {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* The title strip and the thumbnail wells are `rgb(53, 54, 56)`, the
+ * desktop shell's own chrome colour — opaque by design, but on this skin
+ * it reads as a grey slab. Let the page veil show through instead;
+ * thumbnails keep a faint wash so an unloaded image is still a well. */
+
+body[data-dsh-anime-wallpaper] header[class*='dshWbMarketHeader'] {
+  background: transparent;
+}
+
+body[data-dsh-anime-wallpaper] div[class*='dshWbMedia'] {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] div[class*='dshWbMedia'] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ------------------------------------------------------------------ */
+/* Conversation top strip: the tab row above the transcript            */
+/* ------------------------------------------------------------------ */
+/* On a conversation page the centre column keeps a 40px `header`
+ * (`wSkVaW_header`) that carries the 对话/轨迹/上下文/编排 tabs. It paints
+ * nothing itself and the phase-scoped veils start below it, so the tabs
+ * sat straight on the wallpaper. The hero page renders the same header
+ * (`wSkVaW_headerBlank`, empty) which must stay clear — hence the gate
+ * on the phase marker rather than a blanket rule. */
+
+body[data-dsh-anime-wallpaper]:has([data-phase='active']) header[class*='wSkVaW_header'],
+body[data-dsh-anime-wallpaper]:has([data-phase='settling']) header[class*='wSkVaW_header'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) header[class*='wSkVaW_header'],
+body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) header[class*='wSkVaW_header'] {
+  background: rgba(0, 0, 0, 0.6);
+}
