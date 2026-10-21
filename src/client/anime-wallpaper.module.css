@@ -17,28 +17,36 @@
 
 body[data-dsh-anime-wallpaper] {
   background-color: #e7ecf6;
+  /* Veil colour as an RGB triple (`rgb(var(--aw-veil-rgb) / a)`). Every
+   * translucent surface in this skin reads from it, so the whole look can be
+   * retinted from one place. The defaults reproduce the original design: a
+   * white veil in the light theme, a black veil in the dark theme. The
+   * optional 自动配色 mode simply overwrites this custom property on <body>
+   * at runtime — nothing else needs to change, and clearing it restores the
+   * original look exactly. */
+  --aw-veil-rgb: 255 255 255;
   --dsw-alias-bg-base: transparent;
   --dsw-specific-sidebar-fill: transparent;
   /* Raised surfaces (trajectory table, tool cards, settings sections) → 60% veil. */
-  --dsw-alias-bg-layer-1: rgba(255, 255, 255, 0.6);
+  --dsw-alias-bg-layer-1: rgb(var(--aw-veil-rgb) / 0.6);
   /* Composer card + selector/chip fills → 60% veil. */
-  --dsw-specific-input-major: rgba(255, 255, 255, 0.8);
-  --dsw-specific-selector: rgba(255, 255, 255, 0.6);
+  --dsw-specific-input-major: rgb(var(--aw-veil-rgb) / 0.8);
+  --dsw-specific-selector: rgb(var(--aw-veil-rgb) / 0.6);
   /* User-question card (in-conversation, not a popover) → 60% veil. */
-  --dsw-alias-bg-overlay: rgba(255, 255, 255, 0.6);
+  --dsw-alias-bg-overlay: rgb(var(--aw-veil-rgb) / 0.6);
   /* User message bubble → 60% veil. */
-  --dsw-specific-bubble: rgba(255, 255, 255, 0.6);
+  --dsw-specific-bubble: rgb(var(--aw-veil-rgb) / 0.6);
   /* Assistant markdown: inline code + fenced code blocks + banner → 60% veil. */
-  --dsw-alias-markdown-inline-code: rgba(255, 255, 255, 0.6);
-  --dsw-alias-markdown-code-block: rgba(255, 255, 255, 0.6);
-  --dsw-alias-markdown-code-block-banner: rgba(255, 255, 255, 0.6);
+  --dsw-alias-markdown-inline-code: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-markdown-code-block: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-markdown-code-block-banner: rgb(var(--aw-veil-rgb) / 0.6);
   /* Legacy token: DSH no longer reads `--dsw-specific-tip` — the goal bar,
    * todo panel, queue dock and agent-team panel moved to
    * `--dsw-specific-menu` (see the dock rule at the end of this file). Kept
    * so an older DSH build still gets the veil. */
-  --dsw-specific-tip: rgba(255, 255, 255, 0.6);
+  --dsw-specific-tip: rgb(var(--aw-veil-rgb) / 0.6);
   /* New-session button (elevated fill) → 60% veil. */
-  --dsw-alias-button-elevated-fill: rgba(255, 255, 255, 0.6);
+  --dsw-alias-button-elevated-fill: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper] [id='root'] {
@@ -47,18 +55,21 @@ body[data-dsh-anime-wallpaper] [id='root'] {
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] {
   background-color: #0a1126;
+  /* Original design: black veil in the dark theme. 自动配色 overrides this
+   * inline on <body>; removing the override restores exactly this value. */
+  --aw-veil-rgb: 0 0 0;
   --dsw-alias-bg-base: transparent;
   --dsw-specific-sidebar-fill: transparent;
-  --dsw-alias-bg-layer-1: rgba(0, 0, 0, 0.6);
-  --dsw-specific-input-major: rgba(0, 0, 0, 0.8);
-  --dsw-specific-selector: rgba(0, 0, 0, 0.6);
-  --dsw-alias-bg-overlay: rgba(0, 0, 0, 0.6);
-  --dsw-specific-bubble: rgba(0, 0, 0, 0.6);
-  --dsw-alias-markdown-inline-code: rgba(0, 0, 0, 0.6);
-  --dsw-alias-markdown-code-block: rgba(0, 0, 0, 0.6);
-  --dsw-alias-markdown-code-block-banner: rgba(0, 0, 0, 0.6);
-  --dsw-specific-tip: rgba(0, 0, 0, 0.6);
-  --dsw-alias-button-elevated-fill: rgba(0, 0, 0, 0.6);
+  --dsw-alias-bg-layer-1: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-specific-input-major: rgb(var(--aw-veil-rgb) / 0.8);
+  --dsw-specific-selector: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-bg-overlay: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-specific-bubble: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-markdown-inline-code: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-markdown-code-block: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-markdown-code-block-banner: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-specific-tip: rgb(var(--aw-veil-rgb) / 0.6);
+  --dsw-alias-button-elevated-fill: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -66,31 +77,31 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] {
 /* ------------------------------------------------------------------ */
 
 body[data-dsh-anime-wallpaper] :is([data-pane='sidebar'], [class*='sidebarCol']) {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgb(var(--aw-veil-rgb) / 0.75);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is([data-pane='sidebar'], [class*='sidebarCol']) {
-  background: rgba(0, 0, 0, 0.75);
+  background: rgb(var(--aw-veil-rgb) / 0.75);
 }
 
 /* New-session (hero) page: lighten the sidebar veil to 50%. */
 body[data-dsh-anime-wallpaper]:has([data-phase='hero']) :is([data-pane='sidebar'], [class*='sidebarCol']) {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgb(var(--aw-veil-rgb) / 0.5);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='hero']) :is([data-pane='sidebar'], [class*='sidebarCol']) {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(var(--aw-veil-rgb) / 0.5);
 }
 
 /* Hero: new-session button → 70%, composer card → 50%. */
 body[data-dsh-anime-wallpaper]:has([data-phase='hero']) {
-  --dsw-alias-button-elevated-fill: rgba(255, 255, 255, 0.4);
-  --dsw-specific-input-major: rgba(255, 255, 255, 0.5);
+  --dsw-alias-button-elevated-fill: rgb(var(--aw-veil-rgb) / 0.4);
+  --dsw-specific-input-major: rgb(var(--aw-veil-rgb) / 0.5);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='hero']) {
-  --dsw-alias-button-elevated-fill: rgba(0, 0, 0, 0.4);
-  --dsw-specific-input-major: rgba(0, 0, 0, 0.5);
+  --dsw-alias-button-elevated-fill: rgb(var(--aw-veil-rgb) / 0.4);
+  --dsw-specific-input-major: rgb(var(--aw-veil-rgb) / 0.5);
 }
 
 /* ------------------------------------------------------------------ */
@@ -107,12 +118,12 @@ body[data-dsh-anime-wallpaper] :is([data-pane='conversation'], [class*='centerCo
 
 body[data-dsh-anime-wallpaper]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']),
 body[data-dsh-anime-wallpaper]:has([data-phase='settling']) :is([data-pane='conversation'], [class*='centerCol']) {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) :is([data-pane='conversation'], [class*='centerCol']),
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) :is([data-pane='conversation'], [class*='centerCol']) {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -126,32 +137,32 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) 
  * track the veil and let the transparent panel read through it. */
 
 body[data-dsh-anime-wallpaper] :is([data-pane='rightbar'], [class*='rightbarCol']) {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is([data-pane='rightbar'], [class*='rightbarCol']) {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* A fullscreen right panel leaves the track (`position: fixed; inset: 0`) and
  * therefore has to carry its own veil. */
 body[data-dsh-anime-wallpaper] [data-sidebar-right-panel='fullscreen'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-sidebar-right-panel='fullscreen'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* better-sidebar mounts its workbench on a body-level fixed host instead of
  * the track, so that subtree gets the veil through the token it paints with. */
 
 body[data-dsh-anime-wallpaper] [data-dsh-panel-host] {
-  --dsw-alias-bg-base: rgba(255, 255, 255, 0.6);
+  --dsw-alias-bg-base: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-panel-host] {
-  --dsw-alias-bg-base: rgba(0, 0, 0, 0.6);
+  --dsw-alias-bg-base: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -165,39 +176,39 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-panel-host] {
 body[data-dsh-anime-wallpaper] [data-phase='hero'] :is([class*='headlineText'], [class*='_headline']):has([class*='fishHitbox']) {
   padding: 2px 12px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='fishHitbox'] {
   padding: 4px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='previewBadge'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='workspace'],
 body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='seat'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] :is([class*='headlineText'], [class*='_headline']):has([class*='fishHitbox']) {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] [class*='fishHitbox'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] [class*='previewBadge'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='workspace'],
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='seat'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -209,14 +220,14 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[cl
  * layer-1 variable is cleared for its descendants (inheritance). */
 
 body[data-dsh-anime-wallpaper] [data-conversation-composer-overlay] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
   --dsw-alias-bg-layer-1: transparent;
   --dsw-alias-bg-layer-2: transparent;
   --dsw-alias-bg-layer-3: transparent;
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-conversation-composer-overlay] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
   --dsw-alias-bg-layer-1: transparent;
   --dsw-alias-bg-layer-2: transparent;
   --dsw-alias-bg-layer-3: transparent;
@@ -238,7 +249,7 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-conversation-composer-o
   place-items: center;
   width: 42px;
   height: 42px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgb(var(--aw-veil-rgb) / 0.18);
   border-radius: 999px;
   background: #2b3447;
   box-shadow: var(--dsw-shadow-lv2);
@@ -387,6 +398,46 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-conversation-composer-o
   color: var(--dsw-alias-label-primary);
 }
 
+/* 自动配色 switch row, between the wallpaper list and the import button. */
+[data-skin-bg-auto] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 6px;
+  padding: 8px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+[data-skin-bg-auto]:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+[data-skin-bg-auto-input] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--dsw-alias-brand-primary);
+  cursor: pointer;
+}
+
+[data-skin-bg-auto-label] {
+  color: var(--dsw-alias-label-primary);
+}
+
+[data-skin-bg-auto-hint] {
+  flex-basis: 100%;
+  padding-left: 22px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 /* ------------------------------------------------------------------ */
 /* Hero landing: dock the composer stack toward the bottom             */
 /* ------------------------------------------------------------------ */
@@ -413,19 +464,19 @@ body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='scrollBody'] {
  * text, which already reads on the artwork and must be left alone. */
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
-  background: rgba(255, 255, 255, 0.6) !important;
+  background: rgb(var(--aw-veil-rgb) / 0.6) !important;
 }
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
-  background: rgba(255, 255, 255, 0.72) !important;
+  background: rgb(var(--aw-veil-rgb) / 0.72) !important;
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
-  background: rgba(0, 0, 0, 0.6) !important;
+  background: rgb(var(--aw-veil-rgb) / 0.6) !important;
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
-  background: rgba(0, 0, 0, 0.72) !important;
+  background: rgb(var(--aw-veil-rgb) / 0.72) !important;
 }
 
 /* Selecting that chip opens the template panel
@@ -438,12 +489,12 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[cl
 
 body[data-dsh-anime-wallpaper] [data-phase='hero'] [data-office-ppt-template-panel] {
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] [data-office-ppt-template-panel] {
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* The panel's 我的模板 tab opens a personal-template dialog whose own rule
@@ -474,11 +525,11 @@ body[data-dsh-anime-wallpaper] dialog[class*='personal-dialog'] {
  * backgrounds. */
 
 body[data-dsh-anime-wallpaper] [data-plugin-panel] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-plugin-panel] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -499,7 +550,7 @@ body[data-dsh-anime-wallpaper] :is(
     [class*='_7yHdaG_panel'],
     [class*='VoX2oq_panel']
   ) {
-  --dsw-specific-menu: rgba(255, 255, 255, 0.6);
+  --dsw-specific-menu: rgb(var(--aw-veil-rgb) / 0.6);
   --dsw-menu-backdrop-filter: none;
 }
 
@@ -510,7 +561,7 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is(
     [class*='_7yHdaG_panel'],
     [class*='VoX2oq_panel']
   ) {
-  --dsw-specific-menu: rgba(0, 0, 0, 0.6);
+  --dsw-specific-menu: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -519,7 +570,7 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is(
 /* The skill centre replaces the conversation pane exactly like the
  * plugin page above, and it leaves the document with no `[data-phase]`
  * marker at all — measured through CDP: `phase: null`, and the page
- * root computed `background-color: rgba(0, 0, 0, 0)`. So none of the
+ * root computed `background-color: rgb(var(--aw-veil-rgb) / 0)`. So none of the
  * phase-scoped rules matched and the skill names, the descriptions and
  * the group headings sat straight on the wallpaper.
  * The plugin publishes a pinned semantic anchor for skins —
@@ -531,11 +582,11 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] :is(
  * one veil on it covers the tabs, the search row and every skill card. */
 
 body[data-dsh-anime-wallpaper] [data-dsh-skill-explorer-view] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-skill-explorer-view] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -544,10 +595,10 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-skill-explorer-view
 /* The workbench surface is not part of the conversation shell, so none
  * of the rules above reach it. Measured through CDP on the 工作台 page:
  *
- *   section.dshWb.dshWbMarket   page root     rgba(0, 0, 0, 0)
+ *   section.dshWb.dshWbMarket   page root     rgb(var(--aw-veil-rgb) / 0)
  *   header.dshWbMarketHeader    title strip   rgb(53, 54, 56)   ← solid
  *   div.dshWbMedia              card thumb    rgb(53, 54, 56)   ← solid
- *   div.dshWbCardBody           card text     rgba(0, 0, 0, 0)
+ *   div.dshWbCardBody           card text     rgb(var(--aw-veil-rgb) / 0)
  *
  * So the page alternated between "no veil" (root, cards) and "solid grey"
  * (title strip, thumbnails) — the mixed look that prompted this pass.
@@ -556,11 +607,11 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-dsh-skill-explorer-view
  * other page in this skin. */
 
 body[data-dsh-anime-wallpaper] section[class*='dshWbMarket'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] section[class*='dshWbMarket'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* The title strip and the thumbnail wells are `rgb(53, 54, 56)`, the
@@ -573,11 +624,11 @@ body[data-dsh-anime-wallpaper] header[class*='dshWbMarketHeader'] {
 }
 
 body[data-dsh-anime-wallpaper] div[class*='dshWbMedia'] {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgb(var(--aw-veil-rgb) / 0.55);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] div[class*='dshWbMedia'] {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgb(var(--aw-veil-rgb) / 0.06);
 }
 
 /* ------------------------------------------------------------------ */
@@ -592,12 +643,12 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme] div[class*='dshWbMedia'] {
 
 body[data-dsh-anime-wallpaper]:has([data-phase='active']) header[class*='wSkVaW_header'],
 body[data-dsh-anime-wallpaper]:has([data-phase='settling']) header[class*='wSkVaW_header'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) header[class*='wSkVaW_header'],
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) header[class*='wSkVaW_header'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -605,7 +656,7 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) 
 /* ------------------------------------------------------------------ */
 /* DSH Desktop 0.12.0 keeps a 38px tab strip above the conversation
  * header — measured `div._tabStrip_6nhg2_*` at [750, 0, 750, 38] with
- * `background: rgba(0, 0, 0, 0)`. It carries the session tabs and sits
+ * `background: rgb(var(--aw-veil-rgb) / 0)`. It carries the session tabs and sits
  * flush against the window controls, so with no fill the tabs and the
  * - □ × buttons float on raw wallpaper.
  *
@@ -615,9 +666,69 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) 
  * strip advertises no semantic attribute. */
 
 body[data-dsh-anime-wallpaper] [class*='_tabStrip_'] {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [class*='_tabStrip_'] {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(var(--aw-veil-rgb) / 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Windows title-bar strip — painted by the app, not by the OS         */
+/* ------------------------------------------------------------------ */
+/* DSH draws the 34px strip above the app frame itself:
+ *
+ *   [data-windows-titlebar] .frame:before {
+ *     height: var(--dsh-windows-titlebar-height);
+ *     background: var(--dsw-specific-sidebar-fill);
+ *     -webkit-app-region: drag;
+ *   }
+ *
+ * This skin sets `--dsw-specific-sidebar-fill` to `transparent` on purpose:
+ * the sidebar's outer column paints its own single veil, and letting the
+ * inner root fill too would stack two 50% layers into a 75% slab. But the
+ * same token also fills that strip, so it went transparent as well and the
+ * raw Electron window colour (#f8f8f6) showed through — which reads exactly
+ * like an unstyled native title bar and sent the earlier investigation down
+ * the wrong path.
+ *
+ * Two things matter here beyond just giving it a colour:
+ *
+ * 1. `z-index: 1`. A `::before` on the frame paints above the frame's own
+ *    background but BELOW its children, so the sidebar column (0.75, or 0.5
+ *    on the hero page) painted over the left end of the strip while the rest
+ *    of it showed this 0.6 fill — that seam is the bright "boomerang" patch
+ *    left of the logo. Lifting the pseudo-element above its siblings makes
+ *    the whole strip one uniform 0.6, matching the conversation surfaces.
+ * 2. Keyed on `[data-windows-titlebar]`, which DSH only sets on Windows, so
+ *    the macOS/Linux layout is untouched. */
+
+html[data-windows-titlebar] body[data-dsh-anime-wallpaper] [class*='frame']:before {
+  background: rgb(var(--aw-veil-rgb) / 0.75);
+  z-index: 1;
+}
+
+/* Hero page: the sidebar itself drops to 50% there, so the strip follows,
+ * otherwise the strip would read as a darker cap on a lighter rail. */
+html[data-windows-titlebar] body[data-dsh-anime-wallpaper]:has([data-phase='hero']) [class*='frame']:before {
+  background: rgb(var(--aw-veil-rgb) / 0.5);
+}
+
+/* The 16px notch DSH cuts into the top-left of the centre column:
+ *
+ *   [data-windows-titlebar] .centerCol {
+ *     background: var(--dsw-alias-bg-base)   — cleared to transparent here
+ *     border-radius: var(--dsh-windows-content-radius) 0 0 0
+ *     corner-shape: round
+ *   }
+ *
+ * The rounded corner trims the column's own background, and this skin keeps
+ * that background transparent (so the wallpaper shows through the page), so
+ * the notch under the strip is a hole straight down to the wallpaper — the
+ * pink wedge. Flattening the radius makes the strip run edge to edge, which
+ * is what the pre-0.12 layout this skin was designed against looked like.
+ * Scoped to `[data-windows-titlebar]` so nothing changes off Windows. */
+
+html[data-windows-titlebar] body[data-dsh-anime-wallpaper] [class*='centerCol'] {
+  border-radius: 0;
 }

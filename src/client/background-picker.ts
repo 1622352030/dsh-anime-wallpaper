@@ -33,6 +33,10 @@ export interface BackgroundPickerHost {
   hiddenKey: string
   /** Called with the resolved data URI after a pick. */
   onPick: (uri: string) => void
+  /** Whether 自动配色 is currently on (initial checkbox state). */
+  autoTint: boolean
+  /** Called when the 自动配色 switch is flipped. */
+  onToggleAutoTint: (on: boolean) => void
 }
 
 /** Downscale an image file to 1920px-wide webp and return its data URI. */
@@ -146,12 +150,37 @@ export function mountBackgroundPicker(host: BackgroundPickerHost): () => void {
   importBtn.setAttribute('data-skin-bg-import', '')
   importBtn.textContent = '从文件导入图片…'
 
+  // ---- 自动配色 switch ----
+  // Opt-in alternative to the fixed white/black veil: derives the veil colour
+  // from the current wallpaper. Off by default, and turning it off restores
+  // the original look exactly (the CSS custom property is removed).
+  const autoRow = document.createElement('label')
+  autoRow.setAttribute('data-skin-bg-auto', '')
+
+  const autoBox = document.createElement('input')
+  autoBox.type = 'checkbox'
+  autoBox.setAttribute('data-skin-bg-auto-input', '')
+  autoBox.checked = host.autoTint
+
+  const autoText = document.createElement('span')
+  autoText.setAttribute('data-skin-bg-auto-label', '')
+  autoText.textContent = '自动配色（从壁纸取色）'
+
+  const autoHint = document.createElement('span')
+  autoHint.setAttribute('data-skin-bg-auto-hint', '')
+  autoHint.textContent = '关闭即恢复原来的黑白蒙版'
+
+  autoRow.append(autoBox, autoText, autoHint)
+  autoBox.addEventListener('change', () => {
+    host.onToggleAutoTint(autoBox.checked)
+  })
+
   const fileInput = document.createElement('input')
   fileInput.type = 'file'
   fileInput.accept = 'image/*'
   fileInput.hidden = true
 
-  menu.append(title, list, importBtn)
+  menu.append(title, list, autoRow, importBtn)
   root.append(toggle, menu, fileInput)
   body.append(root)
 

@@ -15,6 +15,7 @@
  */
 import type { Context } from '@deepseek-ai/cordis'
 import { BACKGROUNDS, DEFAULT_BACKGROUND } from './backgrounds.generated.ts'
+import { applyAutoTint, readAutoTint, sampleWallpaper, writeAutoTint } from './auto-tint.ts'
 import { mountBackgroundPicker } from './background-picker.ts'
 import './anime-wallpaper.module.css'
 
@@ -71,8 +72,49 @@ export function apply(ctx: Context): void {
   }
 
   const syncBackdrop = (): void => {
-    body.style.setProperty('background-image', `url(${resolveBackground()})`)
+    const uri = resolveBackground()
+    body.style.setProperty('background-image', `url(${uri})`)
+    syncTint(uri)
   }
+
+  /**
+   * Re-derive the auto-tint veil for the wallpaper now showing.
+   *
+   * Only runs when 自动配色 is on; sampling is async (it has to decode the
+   * image), so the previous veil stays in place until the new one is ready —
+   * no flash of an intermediate colour.
+   *
+   * The theme is read at call time: the veil's light/dark direction is chosen
+   * by the TEXT colour (dark theme = white labels = dark veil), so switching
+   * theme must re-derive it, not just swap the wallpaper.
+   */
+  const isDarkTheme = (): boolean => body.hasAttribute('data-ds-dark-theme')
+
+  const syncTint = (uri: string): void => {
+    if (!readAutoTint()) {
+      applyAutoTint(false, null, isDarkTheme())
+      return
+    }
+    void sampleWallpaper(uri).then((sample) => {
+      applyAutoTint(readAutoTint(), sample, isDarkTheme())
+    })
+  }
+
+  /**
+   * Toggle 自动配色. Turning it off restores the stylesheet's own veil colour,
+   * so the original black/white design comes back exactly.
+   */
+  const setAutoTint = (on: boolean): void => {
+    writeAutoTint(on)
+    syncTint(resolveBackground())
+  }
+
+  // The veil flips direction with the theme, so re-derive whenever DSH swaps
+  // `data-ds-dark-theme` on <body>.
+  const themeObserver = new MutationObserver(() => {
+    if (readAutoTint()) syncTint(resolveBackground())
+  })
+  themeObserver.observe(body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
 
   body.style.setProperty('background-position', 'center center')
   body.style.setProperty('background-size', 'cover')
@@ -89,6 +131,8 @@ export function apply(ctx: Context): void {
     namesKey: NAMES_KEY,
     hiddenKey: HIDDEN_KEY,
     onPick: syncBackdrop,
+    autoTint: readAutoTint(),
+    onToggleAutoTint: setAutoTint,
   })
 
   // Cross-tab hot switch: another tab (or the console) that writes the same
@@ -103,6 +147,9 @@ export function apply(ctx: Context): void {
     for (const property of BACKDROP_PROPERTIES) {
       body.style.removeProperty(property)
     }
+    // Drop the auto-tint override so the disposer leaves no custom property behind.
+    body.style.removeProperty('--aw-veil-rgb')
+    themeObserver.disconnect()
     window.removeEventListener('storage', onStorage)
     unmountPicker()
   })
