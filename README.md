@@ -17,7 +17,8 @@
 - [七、常见问题](#七常见问题)
 - [八、开发与构建](#八开发与构建)
 - [九、兼容性与版本历史](#九兼容性与版本历史)
-- [十、许可](#十许可)
+- [十、Windows 标题栏（0.12.0 起的新界面）](#十windows-标题栏dsh-0120-起的新界面)
+- [十一、许可](#十一许可)
 
 ---
 
@@ -69,6 +70,54 @@ pnpm dsh --version
 ```
 
 之后本文档里所有写 `dsh` 的地方，你都替换成「先 `cd` 进源码目录，再用 `pnpm dsh`」。
+
+### 情况 C：用 DSH Desktop 桌面版（Electron 应用）
+
+桌面版**没有** `dsh` 命令，而且它的 profile 由 Electron 独占管理，命令行直接添加会被拒：
+
+```
+error: profile "desktop" is managed exclusively by the Electron application
+```
+
+所以桌面版走下面两条路之一。
+
+**C-1：应用内插件管理（推荐先试这个）**
+
+打开 DSH Desktop →左侧「插件」/插件管理 → 从本地路径或仓库地址安装 `dsh-anime-wallpaper`。装完按提示**完全退出**再重开。
+
+**C-2：手动登记进 profile（界面里找不到入口时）**
+
+1. 找到桌面版的 profile 目录（Windows 默认）：
+
+   ```
+   C:\Users\<你的用户名>\AppData\Roaming\dsh-desktop\harness\profiles\web
+   ```
+
+2. 在该目录执行（`-w` 不能省，否则 pnpm 会报 `ERR_PNPM_ADDING_TO_ROOT`）：
+
+   ```powershell
+   cd "$env:APPDATA\dsh-desktop\harness\profiles\web"
+   pnpm add -w "link:C:\path\to\dsh-anime-wallpaper"
+   ```
+
+3. 编辑同目录的 `package.json`，把包加进 `dsh.profile.bundles` 数组：
+
+   ```json
+   {
+     "dsh": {
+       "profile": {
+         "bundles": [
+           "...",
+           "@dsh-external/dsh-client-ui-skin-anime-wallpaper"
+         ]
+       }
+     }
+   }
+   ```
+
+4. **完全退出** DSH Desktop（托盘图标右键 → 退出；只点窗口右上角的 × 只是收进托盘，配置不会重读），再重新打开。
+
+> 桌面版每次启动都会换端口，这是正常的。皮肤的壁纸选择与开关存在 `localStorage`，换端口不影响你当前这次会话，但**跨重启保存**目前只保证在 `localStorage` 里（同一端口内有效）。
 
 ---
 
@@ -181,6 +230,21 @@ dsh plugin --profile web add D:\github_fork\dsh-anime-wallpaper
 如果删掉的是当前正在用的背景，会自动切回默认壁纸，不会留空。
 
 > 以上所有操作都会自动保存到浏览器 localStorage，无需手动保存。
+
+### 5. 自动配色（可选开关）
+
+菜单最底部有一个 **「自动配色（从壁纸取色）」** 勾选框，**默认关闭**。
+
+- **关闭时**（默认）：蒙版就是原设计的半透明白（浅色主题）/ 黑（深色主题），文字对比由设计保证。
+- **打开后**：皮肤读取当前壁纸，算出平均色，再按**当前主题的文字色**决定蒙版往哪边走：
+  - 深色主题（文字近白）→ 蒙版取**壁纸色相的深色版**；
+  - 浅色主题（文字近黑）→ 蒙版取**壁纸色相的浅色版**。
+
+  这样蒙版与画面有色彩关联，但始终站在文字的对侧，不会把正文淹没。
+
+**觉得不好看随时关掉**：勾掉立刻回到原来的黑白蒙版，不需要重启，也不会丢任何设置。
+
+> 方向由**文字色**决定而不是壁纸亮度，这是有意为之：深色主题里若按壁纸亮度选，遇到浅色壁纸会同时得到「浅蒙版 + 白字」，正文就沉进壁纸里了（这是 1.4.0 开发中实际踩过的坑）。
 
 ---
 
@@ -354,20 +418,27 @@ pnpm build
 
 ---
 
-## 十、已知限制
+## 十、Windows 标题栏（DSH 0.12.0 起的新界面）
 
-### 窗口标题栏（「应用／编辑」菜单与 `— □ ×` 按钮）不受皮肤控制
+**它不是系统边框，是 DSH 用 CSS 画在网页里的**：
 
-最顶部约 **34px** 的窗口标题栏是 **Electron 的原生窗口边框**，不在网页 DOM 里：
+```css
+[data-windows-titlebar] .frame:before {
+  height: var(--dsh-windows-titlebar-height);   /* 34px */
+  background: var(--dsw-specific-sidebar-fill);
+  -webkit-app-region: drag;                     /* 可拖动窗口 */
+}
+```
 
-- 在没有窗口边框的无头浏览器中，`document.elementFromPoint(0, 0)` 直接命中网页元素；
-- 在真实窗口里，网页 DOM 从 `y ≈ 34` 才开始；
-- DSH 自带的 `safe-mode.html` 用 `padding: 34px 0 0` 为它预留位置；
-- 在 DOM 中检索不到任何标题栏元素，DSH 的配置里也没有 `titleBar` / `appearance` 项可调。
+它填充的是 `--dsw-specific-sidebar-fill`。本皮肤为了「侧边栏只叠一层蒙版」把这个 token 设成 `transparent`，于是这条也跟着透明，露出 Electron 的窗口底色 `#f8f8f6`——看起来就像「没上色的原生标题栏」。
 
-皮肤是**样式注入层**，只能作用于网页内元素，因此这一处**无法**通过皮肤修复。要改它得改 DSH 本体的 Electron 配置（`titleBarOverlay` 等），属于宿主程序范畴，且会被 DSH 更新覆盖。
+**1.4.0 已适配**：单独给这个伪元素铺蒙版（会话页 75%、hero 页 50%，跟随侧边栏），并加 `z-index: 1` 让它盖在侧边栏之上（否则左端会被侧边栏自己那层盖住，形成左右深浅不同的接缝）。
 
-> **排查提示**：看到某处「没蒙版」时，先用开发者工具（`Ctrl+Shift+I`）对那一点执行 `document.elementFromPoint(x, y)`。若返回 `null`、或落点压根不在网页元素上，那它就是原生边框，不是皮肤漏修——我最初就是这样误判了一次。
+另外 DSH 还给中心列切了一个 `border-radius: 16px 0 0 0` 的左上圆角；中心列背景被皮肤清成透明，那个圆角缺口会直通壁纸，形成一小块楔形亮斑。1.4.0 已把它压平为 `0`。
+
+以上两条都限定在 `[data-windows-titlebar]`，只在 Windows 生效，macOS / Linux 布局不受影响。
+
+> **给后来者的排查提示**：看到某处「没蒙版」时，先用开发者工具（`Ctrl+Shift+I`）对那一点执行 `document.elementFromPoint(x, y)`，再沿命中元素往上找 `background` 不为透明的祖先。多数「漏修」其实是**共享 token 被清成了 `transparent`**（或者被别的层盖住），补一条局部规则即可。真正属于宿主、CSS 够不到的地方很少——本项目自己就曾把这块误判成「原生边框不可改」，绕了很大一圈才回到 CSS 上。
 
 ---
 
