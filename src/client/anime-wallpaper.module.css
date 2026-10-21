@@ -599,3 +599,25 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='active']) he
 body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) header[class*='wSkVaW_header'] {
   background: rgba(0, 0, 0, 0.6);
 }
+
+/* ------------------------------------------------------------------ */
+/* Window tab strip (the row with the session tabs)                    */
+/* ------------------------------------------------------------------ */
+/* DSH Desktop 0.12.0 keeps a 38px tab strip above the conversation
+ * header — measured `div._tabStrip_6nhg2_*` at [750, 0, 750, 38] with
+ * `background: rgba(0, 0, 0, 0)`. It carries the session tabs and sits
+ * flush against the window controls, so with no fill the tabs and the
+ * - □ × buttons float on raw wallpaper.
+ *
+ * This strip is NOT part of the web page's normal flow, which is why a
+ * headless screenshot never shows it — that is exactly how it slipped
+ * through the first pass. Keyed on the hashed class prefix because the
+ * strip advertises no semantic attribute. */
+
+body[data-dsh-anime-wallpaper] [class*='_tabStrip_'] {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body[data-dsh-anime-wallpaper][data-ds-dark-theme] [class*='_tabStrip_'] {
+  background: rgba(0, 0, 0, 0.6);
+}
