@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>动漫壁纸 · 样式回归检查</title>
+<style>
+  body { font: 14px/1.6 system-ui, sans-serif; margin: 24px; }
+  #fixture { position: fixed; top: -10000px; left: 0; }
+  #results { white-space: pre-wrap; }
+</style>
+<h1>动漫壁纸 · 样式回归检查</h1>
+<p>检查自动化任务页、Office 三按钮、深浅主题、自动配色、交互状态及禁用皮肤后的边界。</p>
+<pre id="results">运行中…</pre>
+<div id="fixture"></div>
+<script>
+(async () => {
+  const skinStyles = /*__SKIN_STYLES__*/;
+  const fixture = document.querySelector('#fixture');
+  const output = document.querySelector('#results');
+  const lines = [];
+  let passed = 0;
+  let failed = 0;
+  const hostCss = `
+    body { --dsw-alias-bg-base: rgb(248,248,246); --dsw-alias-label-primary: rgb(15,17,21); }
+    body[data-ds-dark-theme] { --dsw-alias-label-primary: rgb(249,250,251); }
+    section[data-testid="task-manager-page"] { background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
+    [class*="_heroModeCluster"] button, button[class*="modeChip"] {
+      background: transparent !important; color: var(--dsw-alias-label-primary) !important;
+      border: 0; border-radius: 8px; padding: 4px 8px;
+    }
+    [class*="_heroModeCluster"] button[data-selected="true"], button[class*="modeChip"][data-selected="true"] {
+      background: rgb(38,38,38) !important; color: rgb(255,255,255) !important;
+    }
+    [data-selected="true"] { outline: 2px solid rgb(77,120,240); }
+    button { background: transparent; transition: none !important; }
+  `;
+  function addStyle(text) {
+    const style = document.createElement('style');
+    style.textContent = text;
+    document.head.append(style);
+    return style;
+  }
+  function expect(label, actual, expected) {
+    if (actual === expected) { passed++; }
+    else { failed++; lines.push(`失败：${label}\n  预期 ${expected}\n  实际 ${actual}`); }
+  }
+  function background(id) { return getComputedStyle(document.getElementById(id)).backgroundColor; }
+  function setupSkin(dark, tint) {
+    document.body.setAttribute('data-dsh-anime-wallpaper', '');
+    document.body.toggleAttribute('data-ds-dark-theme', dark);
+    if (tint) document.body.style.setProperty('--aw-veil-rgb', tint);
+    else document.body.style.removeProperty('--aw-veil-rgb');
+  }
+  function runChecks(variant) {
+    for (const scenario of [
+      { name: '浅色', dark: false, tint: null, veil: 'rgba(255, 255, 255, 0.6)' },
+      { name: '深色', dark: true, tint: null, veil: 'rgba(0, 0, 0, 0.6)' },
+      { name: '深色自动配色', dark: true, tint: '27 24 25', veil: 'rgba(27, 24, 25, 0.6)' },
+      { name: '浅色自动配色', dark: false, tint: '230 225 222', veil: 'rgba(230, 225, 222, 0.6)' },
+    ]) {
+      const label = `${variant} / ${scenario.name}`;
+      setupSkin(scenario.dark, scenario.tint);
+      fixture.innerHTML = `
+        <div class="changedHash_centerCol">
+          <section class="newHash_page" data-testid="task-manager-page">
+            <div id="task-list">任务列表</div><aside id="task-details">任务详情</aside>
+          </section>
+        </div>
+        <section id="unrelated-page" class="anotherHash_page">其他页面</section>
+        <div id="ordinary-menu">菜单</div>`;
+      const task = fixture.querySelector('[data-testid="task-manager-page"]');
+      expect(`${label} 任务页无 phase`, fixture.querySelector('[data-phase]'), null);
+      expect(`${label} 任务页蒙版`, getComputedStyle(task).backgroundColor, scenario.veil);
+      expect(`${label} 任务列表不叠加蒙版`, background('task-list'), 'rgba(0, 0, 0, 0)');
+      expect(`${label} 任务详情不叠加蒙版`, background('task-details'), 'rgba(0, 0, 0, 0)');
+      expect(`${label} 中心列保持透明`, getComputedStyle(task.parentElement).backgroundColor, 'rgba(0, 0, 0, 0)');
+      expect(`${label} 不匹配任意 page 类名`, background('unrelated-page'), 'rgba(0, 0, 0, 0)');
+      expect(`${label} 不改菜单变量`, getComputedStyle(document.body).getPropertyValue('--dsw-specific-menu').trim(), '');
+      document.body.removeAttribute('data-dsh-anime-wallpaper');
+      expect(`${label} 关闭皮肤恢复原生任务页`, getComputedStyle(task).backgroundColor, 'rgb(248, 248, 246)');
+      setupSkin(scenario.dark, scenario.tint);
+      fixture.innerHTML = `
+        <section data-phase="hero">
+          <div class="changedHash_heroModeCluster">
+            <button id="ppt" class="differentHash_modeChip" data-desktop-ppt>PPT</button>
+            <button id="word" class="dso-mode-action" data-office-mode="word">Word</button>
+            <button id="excel" class="dso-mode-action" data-office-mode="excel">Excel</button>
+            <button id="selected" data-office-mode="word" data-selected="true">选中</button>
+            <button id="disabled" data-office-mode="excel" disabled>禁用</button>
+            <button id="false-selected" data-office-mode="word" data-selected="false">未选中</button>
+            <button id="future" class="newPluginButton">后续模式</button>
+          </div>
+          <button id="legacy" class="oldHash_modeChip">旧 PPT</button>
+          <button id="workspace" class="workspaceDifferent">工作区</button>
+          <button id="ordinary">其他按钮</button>
+        </section>
+        <section data-phase="active"><div class="otherHash_heroModeCluster"><button id="active-mode">非 hero</button></div></section>`;
+      for (const id of ['ppt', 'word', 'excel', 'disabled', 'false-selected', 'future', 'legacy']) {
+        expect(`${label} ${id} 蒙版`, background(id), scenario.veil);
+      }
+      expect(`${label} 保留选中填充`, background('selected'), 'rgb(38, 38, 38)');
+      expect(`${label} 保留选中文字`, getComputedStyle(document.querySelector('#selected')).color, 'rgb(255, 255, 255)');
+      expect(`${label} 保留选中焦点提示`, getComputedStyle(document.querySelector('#selected')).outlineWidth, '2px');
+      expect(`${label} 不改变普通按钮`, background('ordinary'), 'rgba(0, 0, 0, 0)');
+      expect(`${label} 不改变 active 按钮`, background('active-mode'), 'rgba(0, 0, 0, 0)');
+      document.body.removeAttribute('data-dsh-anime-wallpaper');
+      for (const id of ['ppt', 'word', 'excel', 'legacy']) {
+        expect(`${label} 关闭皮肤 ${id} 恢复透明`, background(id), 'rgba(0, 0, 0, 0)');
+      }
+    }
+  }
+  for (const variant of ['source-before-host', 'compiled-after-host']) {
+    const before = variant === 'source-before-host';
+    const first = addStyle(before ? skinStyles.source : hostCss);
+    const second = addStyle(before ? hostCss : skinStyles.compiled);
+    runChecks(variant);
+    first.remove(); second.remove();
+  }
+  // Transform the exact authored :hover selector into a forceable class.
+  // The current GUI is checked separately for real pointer hover.
+  const forceHover = skinStyles.compiled.replaceAll(':hover', '.test-hover');
+  const host = addStyle(hostCss);
+  const skin = addStyle(forceHover);
+  for (const dark of [false, true]) {
+    setupSkin(dark, null);
+    fixture.innerHTML = `<section data-phase="hero"><div class="changedHash_heroModeCluster">
+      <button id="hover-word" class="test-hover" data-office-mode="word">Word</button>
+      <button id="hover-excel" class="test-hover" data-office-mode="excel">Excel</button>
+      <button id="hover-disabled" class="test-hover" disabled>禁用</button>
+      <button id="hover-selected" class="test-hover" data-selected="true">选中</button>
+    </div></section>`;
+    const rgb = dark ? '0, 0, 0' : '255, 255, 255';
+    for (const id of ['hover-word', 'hover-excel']) expect(`${dark ? '深' : '浅'}色 hover ${id}`, background(id), `rgba(${rgb}, 0.72)`);
+    expect('disabled 不加深 hover', background('hover-disabled'), `rgba(${rgb}, 0.6)`);
+    expect('selected 不覆盖 hover', background('hover-selected'), 'rgb(38, 38, 38)');
+  }
+  host.remove(); skin.remove();
+  fixture.replaceChildren();
+  document.body.removeAttribute('data-dsh-anime-wallpaper');
+  document.body.removeAttribute('data-ds-dark-theme');
+  document.body.style.removeProperty('--aw-veil-rgb');
+  window.__styleTestResults = { passed, failed, failures: lines };
+  document.documentElement.dataset.testStatus = failed ? 'failed' : 'passed';
+  output.textContent = `通过 ${passed} 项，失败 ${failed} 项。\n${lines.join('\n')}`;
+  if (failed) throw new Error('Style regression checks failed');
+})().catch(error => {
+  document.documentElement.dataset.testStatus = 'failed';
+  document.querySelector('#results').textContent += '\n' + error.message;
+  console.error(error);
+});
+</script>
+</html>

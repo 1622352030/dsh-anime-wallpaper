@@ -451,31 +451,26 @@ body[data-dsh-anime-wallpaper] [data-phase='hero'] [class*='scrollBody'] {
 }
 
 /* ------------------------------------------------------------------ */
-/* New-session PPT mode: the chip and its template panel               */
+/* New-session Office modes: the chips and the PPT template panel       */
 /* ------------------------------------------------------------------ */
-/* The composer's chip row now carries a PPT mode chip
- * (`button[data-desktop-ppt]`, `_…_modeChip`) beside the workspace and
- * seat chips. It is painted with `background: 0 0`, and DSH's own
- * conversation stylesheet then clears the whole cluster with
- * `.…_heroModeCluster button { background: transparent !important }`, so a
- * plain rule loses to that `!important` however specific it is. The chip
- * therefore needs `!important` of its own, and only in its unselected
- * state: DSH paints the selected chip as a solid `#262626` block with white
- * text, which already reads on the artwork and must be left alone. */
+/* Word and Excel are contributed by separate plugins and do not share
+ * PPT's `modeChip` class. Match the hero mode-action cluster as well as
+ * the legacy class, without depending on a CSS-module hash or label.
+ * DSH clears this cluster's button backgrounds with `!important`, so the
+ * unselected veil and hover need the same priority. Selected buttons keep
+ * the host's own active fill and colour, and non-hero controls are untouched. */
 
-body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
+body[data-dsh-anime-wallpaper] [data-phase='hero'] :is(
+    button[class*='modeChip'],
+    [class*='_heroModeCluster'] button
+  ):not([data-selected='true']) {
   background: rgb(var(--aw-veil-rgb) / 0.6) !important;
 }
 
-body[data-dsh-anime-wallpaper] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
-  background: rgb(var(--aw-veil-rgb) / 0.72) !important;
-}
-
-body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']) {
-  background: rgb(var(--aw-veil-rgb) / 0.6) !important;
-}
-
-body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-phase='hero'] button[class*='modeChip']:not([data-selected='true']):hover {
+body[data-dsh-anime-wallpaper] [data-phase='hero'] :is(
+    button[class*='modeChip'],
+    [class*='_heroModeCluster'] button
+  ):not([data-selected='true']):hover:not(:disabled) {
   background: rgb(var(--aw-veil-rgb) / 0.72) !important;
 }
 
@@ -529,6 +524,20 @@ body[data-dsh-anime-wallpaper] [data-plugin-panel] {
 }
 
 body[data-dsh-anime-wallpaper][data-ds-dark-theme] [data-plugin-panel] {
+  background: rgb(var(--aw-veil-rgb) / 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Automation task manager: one veil on the no-phase page root          */
+/* ------------------------------------------------------------------ */
+/* The task manager replaces the conversation and carries no `data-phase`,
+ * so the active/settling rules cannot reach it. Its base background token
+ * is deliberately transparent in this skin. Anchor the single page veil
+ * to the host's test id, not the rebuild-dependent `…_page` class. Leave
+ * descendants and menu tokens alone so cards, selection and dialogs keep
+ * their native contrast and do not acquire stacked full-page veils. */
+
+body[data-dsh-anime-wallpaper] [data-testid='task-manager-page'] {
   background: rgb(var(--aw-veil-rgb) / 0.6);
 }
 

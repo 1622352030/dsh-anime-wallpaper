@@ -1,6 +1,6 @@
 {
   "id": "anime-wallpaper",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "name": "DSH 动漫壁纸",
   "nameEn": "Anime Wallpaper",
   "author": "Small-tailqwq",
@@ -26,10 +26,10 @@
   },
   "order": 6,
   "compatibility": {
-    "dsh": "^0.1.7-rc.2",
+    "dsh": "^0.1.7-rc.2 || ^0.2.1-rc.2",
     "tested": {
-      "desktop": "0.10.0",
-      "harness": "0.1.7-rc.2"
+      "desktop": "0.12.1",
+      "harness": "0.2.1-rc.2"
     }
   }
 }
