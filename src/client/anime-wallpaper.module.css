@@ -127,6 +127,54 @@ body[data-dsh-anime-wallpaper][data-ds-dark-theme]:has([data-phase='settling']) 
 }
 
 /* ------------------------------------------------------------------ */
+/* Fallback: plugin / tool pages in the centre column                   */
+/* ------------------------------------------------------------------ */
+/* DSH renders every plugin page into the centre column through the
+ * `main` slot (`dsh-client-ui-layout` renders `renderSlot('main', …)`
+ * inside `centerCol`). The column paints nothing itself, and this skin
+ * clears `--dsw-alias-bg-base` to `transparent` on purpose, so a plugin
+ * page with no rule of its own shows its text straight on the wallpaper.
+ * That is what happened with the Roost setup wizard (`dsh-roost`): its
+ * `.roost-root` bottom is `var(--dsw-alias-bg-base)`, so the whole
+ * onboarding page went transparent. The plugin manager / task manager /
+ * skill centre / workbench pages each needed their own rule before, which
+ * is exactly the "patch every new plugin window" tax this rule removes.
+ *
+ * Any no-conversation centre column gets the standard veil here. Pages
+ * that already carry their own veil are excluded so they do not stack a
+ * second 60% layer on top of this one, and sessions are excluded because
+ * a `[data-phase]` marker means the hero / active / settling rules above
+ * already decide the veil. */
+
+body[data-dsh-anime-wallpaper] :is([data-pane='conversation'], [class*='centerCol']):not(:has([data-phase])):not(:has([data-plugin-panel])):not(:has([data-testid='task-manager-page'])):not(:has([data-dsh-skill-explorer-view])):not(:has([class*='dshWbMarket'])):not(:has([data-dsh-panel-host])) {
+  background: rgb(var(--aw-veil-rgb) / 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/* Fallback: plugin dialogs / modals                                   */
+/* ------------------------------------------------------------------ */
+/* Plugins usually paint a dialog card with `--dsw-alias-bg-base`, the
+ * very token this skin clears to `transparent`; a plugin modal thus floats
+ * on the wallpaper unless it was patched by name. Three such cases had
+ * been hand-fixed already (the PPT template dialog, `personal-dialog`,
+ * and the Roost setup wizard), and every new plugin repeats the pattern.
+ * Give all modal-ish surfaces a readable base instead, so future plugin
+ * windows need no new rule. Scoped to the surfaces themselves, never to
+ * `body`, so genuine menus and popovers keep their own opaque fills. */
+
+body[data-dsh-anime-wallpaper] :where(
+    [role='dialog'],
+    [aria-modal='true'],
+    [class*='modal'],
+    [class*='Modal'],
+    [class*='dialog'],
+    [class*='Dialog']
+  ) {
+  --dsw-alias-bg-base: rgb(var(--aw-veil-rgb) / 0.94);
+  --dsw-alias-bg-layer-1: rgb(var(--aw-veil-rgb) / 0.9);
+}
+
+/* ------------------------------------------------------------------ */
 /* Right column: the track carries the veil                            */
 /* ------------------------------------------------------------------ */
 /* The frame's own `--dsw-alias-bg-base` is cleared to `transparent` at the

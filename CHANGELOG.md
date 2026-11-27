@@ -37,6 +37,14 @@
 
 ---
 
+## 未发布（本地修复）
+
+**修复**
+
+- **插件页面／弹窗通用兜底（治本）**：不再每出现一个新插件窗口就补一条规则。DSH 通过 `main` slot 把插件页渲染在中心列里（`dsh-client-ui-layout` 的 `centerCol`），本皮肤又把全局 `--dsw-alias-bg-base` 清成 `transparent`，于是任何没有专属规则的插件页都会把正文直接铺在壁纸上——`dsh-roost`（QQ 机器人接入）的整页首次接入向导即此形态，与早前 `personal-dialog`、PPT 模板弹窗是同一类坑。现在：
+  - 无会话标记（无 `data-phase`）的中心列统一铺 60% 蒙版；已自带蒙版的页面（插件管理、自动化任务、技能中心、工作台、better-sidebar 面板宿主）排除，避免叠成更深的 84%。
+  - 所有 `[role=dialog]`、`[aria-modal]`、`[class*=modal]`、`[class*=dialog]` 浮层把 `--dsw-alias-bg-base` 重设为 94% 可读底（层一 90%），插件弹窗不再透明穿帮；真实菜单／popover 不受影响。
+
 ## 1.4.1 — 2026-10-22
 
 **适配**：DSH Desktop `0.12.1` / Harness `0.2.1-rc.2`（从当前安装包读取版本，未修改桌面程序）。
